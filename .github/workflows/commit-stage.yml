@@ -32,6 +32,9 @@ jobs:
 
     - name: Make gradlew executable
       run: chmod +x gradlew
+      
+    - name: Validate Gradle wrapper
+      uses: gradle/actions/wrapper-validation@v4
 
     - name: Build with Gradle Wrapper
       run: ./gradlew build
@@ -44,10 +47,11 @@ jobs:
         path: build/reports/tests/test/
 
   dependency-submission:
-
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    # Only run dependency submission on main branch and if dependency graph is enabled
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
     steps:
     - uses: actions/checkout@v4
@@ -59,3 +63,4 @@ jobs:
 
     - name: Generate and submit dependency graph
       uses: gradle/actions/dependency-submission@v4
+      continue-on-error: true  # Don't fail the workflow if dependency graph is disabled
