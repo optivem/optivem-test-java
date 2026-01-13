@@ -50,8 +50,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    # Only run dependency submission on main branch and if dependency graph is enabled
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
     steps:
     - uses: actions/checkout@v4
@@ -63,4 +61,3 @@ jobs:
 
     - name: Generate and submit dependency graph
       uses: gradle/actions/dependency-submission@v4
-      continue-on-error: true  # Don't fail the workflow if dependency graph is disabled
