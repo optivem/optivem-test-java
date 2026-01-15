@@ -2,6 +2,9 @@
 
 def baseVersion = '1.0.2'
 
+// Make baseVersion available to subprojects
+ext.baseVersion = baseVersion
+
 allprojects {
     group = 'com.optivem'
     version = project.hasProperty('version') ? project.property('version') : baseVersion
