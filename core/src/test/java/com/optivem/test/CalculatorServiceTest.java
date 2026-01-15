@@ -1,4 +1,4 @@
-package com.optivem.calculator;
+package com.optivem.test;
 
 import org.junit.Before;
 import org.junit.Test;

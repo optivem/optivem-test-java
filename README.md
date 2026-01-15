@@ -46,7 +46,7 @@ dependencies {
 ### Code Example
 
 ```java
-import com.optivem.calculator.CalculatorService;
+import com.optivem.test.CalculatorService;
 
 public class Example {
     public static void main(String[] args) {

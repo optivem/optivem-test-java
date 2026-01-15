@@ -1,4 +1,4 @@
-package com.optivem.calculator;
+package com.optivem.test;
 
 /**
  * A simple calculator that performs basic arithmetic operations.
