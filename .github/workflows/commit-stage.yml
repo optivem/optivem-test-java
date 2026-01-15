@@ -32,19 +32,16 @@ jobs:
 
     - name: Make gradlew executable
       run: chmod +x gradlew
-      
-    - name: Validate Gradle wrapper
-      uses: gradle/actions/wrapper-validation@v4
 
     - name: Build with Gradle Wrapper
-      run: ./gradlew build
-      
-    - name: Upload test results
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: test-results
-        path: build/reports/tests/test/
+      run: ./gradlew build --no-daemon
+
+    - name: Build and publish library to GitHub Packages
+      run: ./gradlew publish --no-daemon
+      env:
+        USERNAME: ${{ github.actor }}
+        TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 
   dependency-submission:
     runs-on: ubuntu-latest
