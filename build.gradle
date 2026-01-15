@@ -1,92 +1,12 @@
-plugins {
-    id 'java-library'
-    id 'jacoco'
-    id 'maven-publish'
-    id 'signing'
+// Root project configuration for multi-module setup
+
+allprojects {
+    group = 'com.optivem'
+    version = '1.0.2'
 }
 
-group = 'com.optivem'
-version = '1.0.2'
-
-repositories {
-    mavenCentral()
-}
-
-dependencies {
-    testImplementation 'junit:junit:4.13.2'
-}
-
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
-    }
-    withJavadocJar()
-    withSourcesJar()
-}
-
-test {
-    useJUnit()
-    finalizedBy jacocoTestReport
-}
-
-jacoco {
-    toolVersion = "0.8.12"
-}
-
-jacocoTestReport {
-    reports {
-        xml.required = true
-        html.required = true
-    }
-}
-
-publishing {
-    publications {
-        maven(MavenPublication) {
-            from components.java
-            
-            pom {
-                name = 'Optivem Test Library'
-                description = 'A simple calculator library for testing purposes'
-                url = 'https://github.com/optivem/optivem-test-java'
-                
-                licenses {
-                    license {
-                        name = 'MIT License'
-                        url = 'https://opensource.org/licenses/MIT'
-                    }
-                }
-                
-                developers {
-                    developer {
-                        id = 'optivem'
-                        name = 'Optivem'
-                        email = 'info@optivem.com'
-                    }
-                }
-                
-                scm {
-                    connection = 'scm:git:git://github.com/optivem/optivem-test-java.git'
-                    developerConnection = 'scm:git:ssh://github.com:optivem/optivem-test-java.git'
-                    url = 'https://github.com/optivem/optivem-test-java'
-                }
-            }
-        }
-    }
-    
+subprojects {
     repositories {
-        maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/optivem/optivem-test-java")
-            credentials {
-                username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
-                password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
-            }
-        }
+        mavenCentral()
     }
-}
-
-signing {
-    required = { gradle.taskGraph.hasTask("publish") }
-    sign publishing.publications.maven
 }

@@ -1,3 +1,4 @@
 rootProject.name = 'optivem-test'
 
+include 'core'
 include 'acceptance-test'
