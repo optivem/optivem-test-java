@@ -2,6 +2,7 @@
 
 [![Commit Stage](https://github.com/optivem/optivem-test-java/actions/workflows/commit-stage.yml/badge.svg)](https://github.com/optivem/optivem-test-java/actions/workflows/commit-stage.yml)
 [![Acceptance Stage](https://github.com/optivem/optivem-test-java/actions/workflows/acceptance-stage.yml/badge.svg)](https://github.com/optivem/optivem-test-java/actions/workflows/acceptance-stage.yml)
+[![Release Stage](https://github.com/optivem/optivem-test-java/actions/workflows/release-stage.yml/badge.svg)](https://github.com/optivem/optivem-test-java/actions/workflows/release-stage.yml)
 
 A simple calculator library built with Java 21 and Gradle for testing and demonstration purposes.
 
