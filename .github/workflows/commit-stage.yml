@@ -37,13 +37,9 @@ jobs:
     - name: Build core module with Gradle Wrapper
       run: ./gradlew core:build --no-daemon
 
-    - name: Extract version from root build.gradle
+    - name: Extract base version
       id: extract_version
-      shell: pwsh
-      run: |
-        $VERSION = (Select-String -Path "build.gradle" -Pattern "version = '(.+)'").Matches[0].Groups[1].Value
-        "base_version=$VERSION" | Add-Content -Path $env:GITHUB_OUTPUT
-        Write-Host "Extracted version: $VERSION"
+      uses: ./.github/actions/extract-base-version
 
     - name: Build and publish core library to GitHub Packages with RC version
       run: ./gradlew core:publish --no-daemon -Pversion="${{ steps.extract_version.outputs.base_version }}-rc.${{ github.run_number }}"

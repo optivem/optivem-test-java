@@ -1,0 +1,16 @@
+name: 'Extract Base Version'
+description: 'Extract base version from build.gradle file'
+outputs:
+  base_version:
+    description: 'The base version extracted from build.gradle'
+    value: ${{ steps.extract.outputs.base_version }}
+runs:
+  using: 'composite'
+  steps:
+    - name: Extract base version from build.gradle
+      id: extract
+      shell: pwsh
+      run: |
+        $VERSION = (Select-String -Path "build.gradle" -Pattern "def baseVersion = '(.+)'").Matches[0].Groups[1].Value
+        "base_version=$VERSION" | Add-Content -Path $env:GITHUB_OUTPUT
+        Write-Host "Extracted base version: $VERSION"

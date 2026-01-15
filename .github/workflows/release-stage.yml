@@ -33,35 +33,22 @@ jobs:
     - name: Make gradlew executable
       run: chmod +x gradlew
       
-    - name: Extract version from tag
+    - name: Extract base version
       id: version
-      run: |
-        VERSION=${GITHUB_REF#refs/tags/v}
-        echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
-        echo "Releasing version: $VERSION"
+      uses: ./.github/actions/extract-base-version
       
-    - name: Update version in build.gradle
-      run: |
-        sed -i "s/version = '.*'/version = '${{ steps.version.outputs.VERSION }}'/" build.gradle
-        
-    - name: Run tests
-      run: ./gradlew test
-      
-    - name: Build library
-      run: ./gradlew build
-      
-    - name: Publish to GitHub Packages
-      run: ./gradlew publish
+    - name: Publish to GitHub Packages with the Final Version
+      run: ./gradlew core:publish --no-daemon -Pversion="${{ steps.version.outputs.base_version }}"
       env:
-        USERNAME: ${{ github.actor }}
-        TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_USERNAME: ${{ github.actor }}
+        GITHUB_WRITE_PACKAGES_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v2
       with:
-        name: Release ${{ steps.version.outputs.VERSION }}
+        name: Release ${{ steps.version.outputs.base_version }}
         files: |
-          build/libs/*.jar
+          core/build/libs/*.jar
         generate_release_notes: true
         draft: false
         prerelease: false
