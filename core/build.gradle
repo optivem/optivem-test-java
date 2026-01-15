@@ -40,11 +40,11 @@ jacocoTestReport {
 publishing {
     publications {
         maven(MavenPublication) {
+            // Set the correct artifact name to maintain compatibility
+            artifactId = 'optivem-test'
             from components.java
             
             pom {
-            // Set the correct artifact name to maintain compatibility
-                artifactId = 'optivem-test'
                 name = 'Optivem Test Library'
                 description = 'A simple calculator library for testing purposes'
                 url = 'https://github.com/optivem/optivem-test-java'
