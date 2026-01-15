@@ -11,15 +11,15 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
-
+  build-and-publish:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write # Required for publishing to GitHub Packages
+      packages: write
 
     steps:
     - uses: actions/checkout@v4
+    
     - name: Set up JDK 21
       uses: actions/setup-java@v4
       with:
@@ -34,18 +34,30 @@ jobs:
     - name: Make gradlew executable
       run: chmod +x gradlew
 
-    - name: Build core module with Gradle Wrapper
-      run: ./gradlew core:build --no-daemon
-
     - name: Extract base version
       id: extract_version
       uses: ./.github/actions/extract-base-version
+    
+    - name: Determine RC version
+      id: version
+      run: echo "version=${{ steps.extract_version.outputs.base_version }}-rc.${{ github.run_number }}" >> $GITHUB_OUTPUT
 
-    - name: Build and publish core library to GitHub Packages with RC version
-      run: ./gradlew core:publish --no-daemon -Pversion="${{ steps.extract_version.outputs.base_version }}-rc.${{ github.run_number }}"
+    - name: Build core module
+      run: ./gradlew core:build --no-daemon -Pversion="${{ steps.version.outputs.version }}"
+
+    - name: Publish to GitHub Packages
+      run: ./gradlew core:publishMavenPublicationToGitHubPackagesRepository --no-daemon -Pversion="${{ steps.version.outputs.version }}"
       env:
         GITHUB_USERNAME: ${{ github.actor }}
         GITHUB_WRITE_PACKAGES_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Publish to Maven Central
+      run: ./gradlew core:publishMavenPublicationToCentralPortalRepository --no-daemon -Pversion="${{ steps.version.outputs.version }}"
+      env:
+        SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+        SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+        GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+        GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
 
 
   dependency-submission:

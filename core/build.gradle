@@ -88,7 +88,29 @@ publishing {
                 password = System.getenv("GITHUB_WRITE_PACKAGES_TOKEN")
             }
         }
+        
+        maven {
+            name = "CentralPortal"
+            url = uri("https://central.sonatype.com/api/v1/publisher/upload")
+            credentials {
+                username = System.getenv("SONATYPE_USERNAME")
+                password = System.getenv("SONATYPE_PASSWORD")
+            }
+        }
     }
+}
+
+signing {
+    required { gradle.taskGraph.hasTask("publishMavenPublicationToCentralPortalRepository") }
+    
+    def signingKey = System.getenv("GPG_PRIVATE_KEY")
+    def signingPassword = System.getenv("GPG_PASSPHRASE")
+    
+    if (signingKey && signingPassword) {
+        useInMemoryPgpKeys(signingKey, signingPassword)
+    }
+    
+    sign publishing.publications.maven
 }
 
 signing {
