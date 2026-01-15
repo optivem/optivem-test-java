@@ -5,9 +5,6 @@ plugins {
     id 'signing'
 }
 
-// Set the artifact name to match the original published name
-archivesBaseName = 'optivem-test'
-
 group = 'com.optivem'
 version = '1.0.2'
 
@@ -49,6 +46,8 @@ publishing {
             from components.java
             
             pom {
+            // Set the correct artifact name to maintain compatibility
+                artifactId = 'optivem-test'
                 name = 'Optivem Test Library'
                 description = 'A simple calculator library for testing purposes'
                 url = 'https://github.com/optivem/optivem-test-java'
@@ -82,8 +81,8 @@ publishing {
             name = "GitHubPackages"
             url = uri("https://maven.pkg.github.com/optivem/optivem-test-java")
             credentials {
-                username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
-                password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
+                username = System.getenv("GITHUB_USERNAME")
+                password = System.getenv("GITHUB_TOKEN")
             }
         }
     }

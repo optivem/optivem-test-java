@@ -46,8 +46,8 @@ jobs:
     - name: Build and publish core library to GitHub Packages with RC version
       run: ./gradlew core:publish --no-daemon -Pversion="${{ steps.extract_version.outputs.base_version }}-rc.${{ github.run_number }}"
       env:
-        USERNAME: ${{ github.actor }}
-        TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_USERNAME: ${{ github.actor }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 
   dependency-submission:
