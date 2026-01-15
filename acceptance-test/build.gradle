@@ -21,8 +21,8 @@ repositories {
 }
 
 dependencies {
-    // Automatically use the latest RC version (e.g., 1.0.0-rc.3, 1.0.0-rc.4, etc.)
-    testImplementation 'com.optivem:optivem-test:1.0.2-rc.+'
+    // Automatically use the latest RC version matching the project version
+    testImplementation "com.optivem:optivem-test:${version}-rc.+"
     testImplementation 'junit:junit:4.13.2'
 }
 
