@@ -44,24 +44,37 @@ $authHeader = @{
 }
 
 $artifacts = @(
-    "optivem-test-${RcVersion}.jar",
-    "optivem-test-${RcVersion}-sources.jar", 
-    "optivem-test-${RcVersion}-javadoc.jar"
+    @{ Name = "optivem-test-${RcVersion}.jar"; Required = $true },
+    @{ Name = "optivem-test-${RcVersion}-sources.jar"; Required = $false }, 
+    @{ Name = "optivem-test-${RcVersion}-javadoc.jar"; Required = $false }
 )
 
+$downloadedCount = 0
+$requiredCount = ($artifacts | Where-Object { $_.Required }).Count
+
 foreach ($artifact in $artifacts) {
-    $url = "$baseUrl/$artifact"
-    $outputPath = "temp-artifacts\$artifact"
+    $url = "$baseUrl/$($artifact.Name)"
+    $outputPath = "temp-artifacts\$($artifact.Name)"
     
-    Write-Host "⬇️ Downloading $artifact..." -ForegroundColor Yellow
+    Write-Host "⬇️ Downloading $($artifact.Name)..." -ForegroundColor Yellow
     
     try {
         Invoke-WebRequest -Uri $url -Headers $authHeader -OutFile $outputPath -ErrorAction Stop
-        Write-Host "✅ Downloaded $artifact" -ForegroundColor Green
+        Write-Host "✅ Downloaded $($artifact.Name)" -ForegroundColor Green
+        $downloadedCount++
     } catch {
-        Write-Host "❌ Failed to download $artifact`: $($_.Exception.Message)" -ForegroundColor Red
-        exit 1
+        if ($artifact.Required) {
+            Write-Host "❌ Failed to download required artifact $($artifact.Name): $($_.Exception.Message)" -ForegroundColor Red
+            exit 1
+        } else {
+            Write-Host "⚠️ Optional artifact $($artifact.Name) not available (skipped)" -ForegroundColor Yellow
+        }
     }
 }
 
-Write-Host "✅ All artifacts downloaded successfully" -ForegroundColor Green
+if ($downloadedCount -eq 0) {
+    Write-Host "❌ No artifacts were downloaded" -ForegroundColor Red
+    exit 1
+}
+
+Write-Host "✅ Downloaded $downloadedCount artifact(s) successfully" -ForegroundColor Green
