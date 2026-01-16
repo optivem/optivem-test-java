@@ -41,16 +41,16 @@ subprojects {
     task verifyDependencies {
         inputs.files(configurations.testRuntimeClasspath)
         doLast {
-            println "Verifying that optivem-test dependency can be resolved..."
+            println "Verifying that optivem-testing dependency can be resolved..."
             def found = false
             inputs.files.each { file ->
-                if (file.name.contains('optivem-test')) {
-                    println "✓ Found optivem-test dependency: ${file.name}"
+                if (file.name.contains('optivem-testing')) {
+                    println "✓ Found optivem-testing dependency: ${file.name}"
                     found = true
                 }
             }
             if (!found) {
-                throw new GradleException("optivem-test dependency not found!")
+                throw new GradleException("optivem-testing dependency not found!")
             }
         }
     }

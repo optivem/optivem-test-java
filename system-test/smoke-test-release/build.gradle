@@ -6,5 +6,5 @@ repositories {
 def testVersion = project.hasProperty('version') ? project.version : rootProject.ext.baseVersion
 
 dependencies {
-    testImplementation "com.optivem:optivem-test:${testVersion}"
+    testImplementation "com.optivem:optivem-testing:${testVersion}"
 }

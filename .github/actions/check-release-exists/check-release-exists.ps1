@@ -14,7 +14,7 @@
     GitHub repository (owner/repo)
 
 .EXAMPLE
-    .\check-release-exists.ps1 -ReleaseVersion "1.0.5" -GitHubToken $token -Repository "optivem/optivem-test-java"
+    .\check-release-exists.ps1 -ReleaseVersion "1.0.5" -GitHubToken $token -Repository "optivem/optivem-testing-java"
 #>
 
 param(
@@ -38,7 +38,7 @@ if ($GitHubToken -and $Repository) {
     }
     
     try {
-        $response = Invoke-WebRequest -Uri "https://api.github.com/repos/$Repository/packages/maven/com.optivem.optivem-test/versions" -Headers $headers -Method Get
+        $response = Invoke-WebRequest -Uri "https://api.github.com/repos/$Repository/packages/maven/com.optivem.optivem-testing/versions" -Headers $headers -Method Get
         if ($response.StatusCode -eq 200) {
             $versions = $response.Content | ConvertFrom-Json
             $exists = $versions | Where-Object { $_.name -eq $ReleaseVersion }

@@ -1,11 +1,11 @@
 # Acceptance Test Module
 
-This module performs acceptance tests by downloading and using the published `optivem-test` package from external repositories.
+This module performs acceptance tests by downloading and using the published `optivem-testing` package from external repositories.
 
 ## Purpose
 
 This acceptance test module verifies that:
-1. The `optivem-test` package can be successfully downloaded from Maven Central
+1. The `optivem-testing` package can be successfully downloaded from Maven Central
 2. The package can be downloaded from GitHub Packages (when configured)
 3. The downloaded package's API works correctly from a consumer's perspective
 4. All functionality is preserved in the published package
@@ -35,7 +35,7 @@ repositories {
     mavenCentral()
     
     maven {
-        url = uri("https://maven.pkg.github.com/optivem/optivem-test-java")
+        url = uri("https://maven.pkg.github.com/optivem/optivem-testing-java")
         credentials {
             username = System.getenv("GITHUB_USERNAME")
             password = System.getenv("GITHUB_READ_PACKAGES_TOKEN")
@@ -47,7 +47,7 @@ repositories {
 3. Update the dependency version if needed:
 ```gradle
 dependencies {
-    testImplementation 'com.optivem:optivem-test:1.0.1' // or whatever version is in GitHub Packages
+    testImplementation 'com.optivem:optivem-testing:1.0.1' // or whatever version is in GitHub Packages
 }
 ```
 
@@ -65,7 +65,7 @@ dependencies {
 
 ## Verification Tasks
 
-- `verifyDependencies`: Checks that the optivem-test dependency is properly resolved and available in the classpath
+- `verifyDependencies`: Checks that the optivem-testing dependency is properly resolved and available in the classpath
 
 ## Notes
 

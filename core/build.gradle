@@ -53,13 +53,13 @@ publishing {
     publications {
         maven(MavenPublication) {
             // Set the correct artifact name to maintain compatibility
-            artifactId = 'optivem-test'
+            artifactId = 'optivem-testing'
             from components.java
             
             pom {
                 name = 'Optivem Test Library'
                 description = 'A simple test library for testing purposes'
-                url = 'https://github.com/optivem/optivem-test-java'
+                url = 'https://github.com/optivem/optivem-testing-java'
                 
                 licenses {
                     license {
@@ -77,9 +77,9 @@ publishing {
                 }
                 
                 scm {
-                    connection = 'scm:git:git://github.com/optivem/optivem-test-java.git'
-                    developerConnection = 'scm:git:ssh://github.com:optivem/optivem-test-java.git'
-                    url = 'https://github.com/optivem/optivem-test-java'
+                    connection = 'scm:git:git://github.com/optivem/optivem-testing-java.git'
+                    developerConnection = 'scm:git:ssh://github.com:optivem/optivem-testing-java.git'
+                    url = 'https://github.com/optivem/optivem-testing-java'
                 }
             }
         }
@@ -88,7 +88,7 @@ publishing {
     repositories {
         maven {
             name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/optivem/optivem-test-java")
+            url = uri("https://maven.pkg.github.com/optivem/optivem-testing-java")
             credentials {
                 username = System.getenv("GITHUB_USERNAME")
                 password = System.getenv("GITHUB_WRITE_PACKAGES_TOKEN")
@@ -148,11 +148,11 @@ task createCentralPortalBundle {
         }
         
         def localRepo = "${System.getProperty('user.home')}/.m2/repository"
-        def artifactPath = "${localRepo}/com/optivem/optivem-test/${projectVersion}"
+        def artifactPath = "${localRepo}/com/optivem/optivem-testing/${projectVersion}"
         def buildPath = layout.buildDirectory.get().asFile.absolutePath
         def bundleDir = "${buildPath}/central-portal-bundle"
-        def mavenDir = "${bundleDir}/com/optivem/optivem-test/${projectVersion}"
-        def bundleZip = "${buildPath}/optivem-test-${projectVersion}.zip"
+        def mavenDir = "${bundleDir}/com/optivem/optivem-testing/${projectVersion}"
+        def bundleZip = "${buildPath}/optivem-testing-${projectVersion}.zip"
         
         println "Creating bundle for Central Portal upload..."
         println "Username: ${username}"
@@ -166,10 +166,10 @@ task createCentralPortalBundle {
         
         // Copy all artifacts with checksums and signatures
         def filesToCopy = [
-            "optivem-test-${projectVersion}.pom",
-            "optivem-test-${projectVersion}.jar",
-            "optivem-test-${projectVersion}-sources.jar", 
-            "optivem-test-${projectVersion}-javadoc.jar"
+            "optivem-testing-${projectVersion}.pom",
+            "optivem-testing-${projectVersion}.jar",
+            "optivem-testing-${projectVersion}-sources.jar", 
+            "optivem-testing-${projectVersion}-javadoc.jar"
         ]
         
         filesToCopy.each { filename ->
@@ -239,7 +239,7 @@ task uploadToCentralPortal(type: Exec) {
         def password = System.getenv("SONATYPE_PASSWORD")
         def projectVersion = project.version
         def buildPath = layout.buildDirectory.get().asFile.absolutePath
-        def bundleZip = "${buildPath}/optivem-test-${projectVersion}.zip"
+        def bundleZip = "${buildPath}/optivem-testing-${projectVersion}.zip"
         
         if (!username || !password) {
             throw new GradleException("SONATYPE_USERNAME and SONATYPE_PASSWORD environment variables must be set")

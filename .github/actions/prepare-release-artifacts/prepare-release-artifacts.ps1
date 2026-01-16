@@ -34,9 +34,9 @@ if (-not (Test-Path "temp-artifacts")) {
 Get-ChildItem temp-artifacts/ | Format-Table -AutoSize
 
 $expectedFiles = @(
-    "optivem-test-${RcVersion}.jar",
-    "optivem-test-${RcVersion}-sources.jar", 
-    "optivem-test-${RcVersion}-javadoc.jar"
+    "optivem-testing-${RcVersion}.jar",
+    "optivem-testing-${RcVersion}-sources.jar", 
+    "optivem-testing-${RcVersion}-javadoc.jar"
 )
 
 foreach ($file in $expectedFiles) {
@@ -52,9 +52,9 @@ Write-Host "✅ All expected artifacts found" -ForegroundColor Green
 New-Item -ItemType Directory -Path "core\build\libs" -Force | Out-Null
 
 # Copy and rename artifacts for release
-Copy-Item "temp-artifacts\optivem-test-${RcVersion}.jar" "core\build\libs\optivem-test-${ReleaseVersion}.jar"
-Copy-Item "temp-artifacts\optivem-test-${RcVersion}-sources.jar" "core\build\libs\optivem-test-${ReleaseVersion}-sources.jar" 
-Copy-Item "temp-artifacts\optivem-test-${RcVersion}-javadoc.jar" "core\build\libs\optivem-test-${ReleaseVersion}-javadoc.jar"
+Copy-Item "temp-artifacts\optivem-testing-${RcVersion}.jar" "core\build\libs\optivem-testing-${ReleaseVersion}.jar"
+Copy-Item "temp-artifacts\optivem-testing-${RcVersion}-sources.jar" "core\build\libs\optivem-testing-${ReleaseVersion}-sources.jar" 
+Copy-Item "temp-artifacts\optivem-testing-${RcVersion}-javadoc.jar" "core\build\libs\optivem-testing-${ReleaseVersion}-javadoc.jar"
 
 Write-Host "✅ Release artifacts prepared" -ForegroundColor Green
 Get-ChildItem "core\build\libs\" | Format-Table -AutoSize

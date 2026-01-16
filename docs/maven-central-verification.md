@@ -137,7 +137,7 @@ Login → Review Bundle → Click Publish → Wait for propagation
 
 ### Tests failing unexpectedly
 1. Verify version format matches expectations
-2. Check Maven Central metadata: `https://repo1.maven.org/maven2/com/optivem/optivem-test/maven-metadata.xml`
+2. Check Maven Central metadata: `https://repo1.maven.org/maven2/com/optivem/optivem-testing/maven-metadata.xml`
 3. Test locally with same version: `./gradlew system-test:smoke-test-*-mavencentral:test -Pversion=X.Y.Z`
 
 ## Future Enhancements

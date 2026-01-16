@@ -45,6 +45,6 @@ This module contains smoke tests for validating artifact availability from diffe
 
 Each test module:
 1. Configures appropriate repository (GitHub Packages or Maven Central)
-2. Resolves the target version of `com.optivem:optivem-test`
+2. Resolves the target version of `com.optivem:optivem-testing`
 3. Runs a simple smoke test to verify the library loads correctly
 4. Reports success/failure for CI/CD validation

@@ -9,7 +9,7 @@
 .PARAMETER GroupId
     Maven group ID (default: com.optivem)
 .PARAMETER ArtifactId
-    Maven artifact ID (default: optivem-test)
+    Maven artifact ID (default: optivem-testing)
 #>
 
 param(

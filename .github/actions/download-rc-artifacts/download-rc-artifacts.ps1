@@ -17,7 +17,7 @@
     GitHub repository (owner/repo)
 
 .EXAMPLE
-    .\download-rc-artifacts.ps1 -RcVersion "1.0.5-rc.47" -GitHubUsername "user" -GitHubToken $token -Repository "optivem/optivem-test-java"
+    .\download-rc-artifacts.ps1 -RcVersion "1.0.5-rc.47" -GitHubUsername "user" -GitHubToken $token -Repository "optivem/optivem-testing-java"
 #>
 
 param(
@@ -38,15 +38,15 @@ Write-Host "📥 Downloading RC artifacts from GitHub Packages..." -ForegroundCo
 New-Item -ItemType Directory -Path "temp-artifacts" -Force | Out-Null
 
 # GitHub Packages Maven repository base URL
-$baseUrl = "https://maven.pkg.github.com/$Repository/com/optivem/optivem-test/$RcVersion"
+$baseUrl = "https://maven.pkg.github.com/$Repository/com/optivem/optivem-testing/$RcVersion"
 $authHeader = @{
     "Authorization" = "Bearer $GitHubToken"
 }
 
 $artifacts = @(
-    "optivem-test-${RcVersion}.jar",
-    "optivem-test-${RcVersion}-sources.jar", 
-    "optivem-test-${RcVersion}-javadoc.jar"
+    "optivem-testing-${RcVersion}.jar",
+    "optivem-testing-${RcVersion}-sources.jar", 
+    "optivem-testing-${RcVersion}-javadoc.jar"
 )
 
 foreach ($artifact in $artifacts) {

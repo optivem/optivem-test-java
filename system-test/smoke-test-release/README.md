@@ -1,6 +1,6 @@
 # Smoke Test Release Maven Central
 
-This module contains smoke tests that verify the Maven Central release version of optivem-test library.
+This module contains smoke tests that verify the Maven Central release version of optivem-testing library.
 
 ## Purpose
 

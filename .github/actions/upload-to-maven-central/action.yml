@@ -18,7 +18,7 @@ inputs:
   artifact-id:
     description: 'Maven artifact ID'
     required: false
-    default: 'optivem-test'
+    default: 'optivem-testing'
   project-name:
     description: 'Project display name'
     required: false
@@ -30,7 +30,7 @@ inputs:
   project-url:
     description: 'Project URL'
     required: false
-    default: 'https://github.com/optivem/optivem-test-java'
+    default: 'https://github.com/optivem/optivem-testing-java'
   license-name:
     description: 'License name'
     required: false
@@ -54,15 +54,15 @@ inputs:
   scm-connection:
     description: 'SCM connection URL'
     required: false
-    default: 'scm:git:git://github.com/optivem/optivem-test-java.git'
+    default: 'scm:git:git://github.com/optivem/optivem-testing-java.git'
   scm-developer-connection:
     description: 'SCM developer connection URL'
     required: false
-    default: 'scm:git:ssh://github.com:optivem/optivem-test-java.git'
+    default: 'scm:git:ssh://github.com:optivem/optivem-testing-java.git'
   scm-url:
     description: 'SCM URL'
     required: false
-    default: 'https://github.com/optivem/optivem-test-java'
+    default: 'https://github.com/optivem/optivem-testing-java'
 
 outputs:
   deployment-id:
