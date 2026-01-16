@@ -105,14 +105,13 @@ nmcp {
     }
 }
 
-// Signing configuration - only enabled when publishing to Maven Central
-def enableSigning = System.getenv("ENABLE_SIGNING") == "true"
+// Signing configuration - always enabled for Central Portal
 def signingKeyPath = System.getenv("GPG_PRIVATE_KEY")
 def signingPassword = System.getenv("GPG_PASSPHRASE")
 
-if (enableSigning && signingKeyPath && signingPassword) {
+if (signingKeyPath && signingPassword) {
     signing {
-        required = { gradle.taskGraph.hasTask("publishMavenPublicationToMavenCentralRepository") }
+        required = { gradle.taskGraph.hasTask("publishMavenPublicationToMavenCentralRepository") || gradle.taskGraph.hasTask("publishAllPublicationsToNmcpMavenRepository") }
         
         // Check if it's a file path or the actual key content
         def keyFile = new File(signingKeyPath)
