@@ -19,6 +19,9 @@
 
 param(
     [Parameter(Mandatory=$true)]
+    [string]$DeploymentId,
+    
+    [Parameter(Mandatory=$true)]
     [string]$ReleaseVersion,
     
     [Parameter(Mandatory=$true)]
@@ -30,108 +33,53 @@ param(
 
 Write-Host "📤 Publishing deployment on Maven Central..." -ForegroundColor Blue
 
-# Set up authentication headers
+# Set up authentication headers - Maven Central Portal API uses Bearer token, not Basic auth
 $auth = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes("${SonatypeUsername}:${SonatypePassword}"))
 $headers = @{
-    "Authorization" = "Basic $auth"
+    "Authorization" = "Bearer $auth"
     "Accept" = "application/json"
 }
 
-Write-Host "🔍 Finding deployment for version $ReleaseVersion..." -ForegroundColor Yellow
+Write-Host "🔍 Checking deployment status for ID: $DeploymentId..." -ForegroundColor Yellow
 
 try {
-    # Try the API endpoint - Maven Central Portal uses a separate API domain
+    # Check deployment status using the correct API endpoint
+    # https://central.sonatype.org/publish/publish-portal-api/
     $apiBase = "https://central.sonatype.com"
-    $deploymentsUrl = "$apiBase/api/v1/publisher/deployments"
+    $statusUrl = "$apiBase/api/v1/publisher/status?id=$DeploymentId"
     
-    Write-Host "  Attempting API call to: $deploymentsUrl" -ForegroundColor Gray
+    Write-Host "  Calling: $statusUrl" -ForegroundColor Gray
     
-    # Add more headers that might be needed
-    $headers["Content-Type"] = "application/json"
+    $statusResponse = Invoke-RestMethod -Uri $statusUrl -Headers $headers -Method Post -ErrorAction Stop
     
-    try {
-        $deploymentsResponse = Invoke-RestMethod -Uri $deploymentsUrl -Headers $headers -Method Get -ErrorAction Stop
-    } catch {
-        # Try alternative domain if the first fails
-        Write-Host "  First attempt failed, trying api.central.sonatype.com..." -ForegroundColor Yellow
-        $apiBase = "https://api.central.sonatype.com"
-        $deploymentsUrl = "$apiBase/v1/publisher/deployments"
-        Write-Host "  Attempting: $deploymentsUrl" -ForegroundColor Gray
-        $deploymentsResponse = Invoke-RestMethod -Uri $deploymentsUrl -Headers $headers -Method Get -ErrorAction Stop
-    }
+    Write-Host "  Status: $($statusResponse.deploymentState)" -ForegroundColor Gray
     
-    Write-Host "  ✓ Response received" -ForegroundColor Green
-    
-    # Handle different response formats
-    $deploymentsList = if ($deploymentsResponse -is [Array]) { 
-        $deploymentsResponse 
-    } elseif ($deploymentsResponse.PSObject.Properties['deployments']) {
-        $deploymentsResponse.deployments
-    } elseif ($deploymentsResponse.PSObject.Properties['items']) {
-        $deploymentsResponse.items
-    } else {
-        $deploymentsResponse
-    }
-    
-    if ($null -eq $deploymentsList -or $deploymentsList.Count -eq 0) {
-        Write-Host "⚠️  No deployments found" -ForegroundColor Yellow
-        Write-Host ""
-        Write-Host "Manual steps:" -ForegroundColor Cyan
-        Write-Host "1. Go to: https://central.sonatype.com/publishing/deployments" -ForegroundColor White
-        Write-Host "2. Find deployment for version $ReleaseVersion" -ForegroundColor White
-        Write-Host "3. Click 'Publish' button" -ForegroundColor White
-        exit 0
-    }
-    
-    Write-Host "  Found $($deploymentsList.Count) total deployments" -ForegroundColor Gray
-    
-    # Find deployment matching the version
-    $deployment = $deploymentsList | Where-Object { 
-        $_.name -like "*$ReleaseVersion*" -or 
-        ($_.PSObject.Properties['version'] -and $_.version -eq $ReleaseVersion)
-    } | Sort-Object -Property { 
-        if ($_.PSObject.Properties['createdDate']) { $_.createdDate } 
-        elseif ($_.PSObject.Properties['created']) { $_.created }
-        else { Get-Date }
-    } -Descending | Select-Object -First 1
-
-    if (-not $deployment) {
-        Write-Host "❌ Could not find deployment for version $ReleaseVersion" -ForegroundColor Red
-        Write-Host "Recent deployments:" -ForegroundColor Yellow
-        $deploymentsList | Select-Object -First 5 | ForEach-Object { 
-            $name = if ($_.PSObject.Properties['name']) { $_.name } else { $_.deploymentId }
-            $state = if ($_.PSObject.Properties['deploymentState']) { $_.deploymentState } 
-                     elseif ($_.PSObject.Properties['state']) { $_.state } 
-                     else { 'UNKNOWN' }
-            Write-Host "  - $name (Status: $state)" 
+    # Check if deployment is in VALIDATED state (ready to publish)
+    if ($statusResponse.deploymentState -ne "VALIDATED") {
+        Write-Host "⚠️  Deployment is not in VALIDATED state" -ForegroundColor Yellow
+        Write-Host "  Current state: $($statusResponse.deploymentState)" -ForegroundColor Yellow
+        
+        if ($statusResponse.deploymentState -eq "PENDING" -or $statusResponse.deploymentState -eq "VALIDATING") {
+            Write-Host "⏳ Deployment is still validating. Please wait and try again." -ForegroundColor Yellow
+        } elseif ($statusResponse.deploymentState -eq "FAILED") {
+            Write-Host "❌ Deployment validation failed" -ForegroundColor Red
+            if ($statusResponse.PSObject.Properties['errors']) {
+                Write-Host "Errors:" -ForegroundColor Red
+                $statusResponse.errors | ForEach-Object { Write-Host "  - $_" -ForegroundColor Red }
+            }
+            exit 1
+        } elseif ($statusResponse.deploymentState -eq "PUBLISHED") {
+            Write-Host "✅ Deployment already published!" -ForegroundColor Green
+            exit 0
         }
         exit 1
     }
-
-    $deploymentId = if ($deployment.PSObject.Properties['deploymentId']) { 
-        $deployment.deploymentId 
-    } else { 
-        $deployment.id 
-    }
     
-    $deploymentState = if ($deployment.PSObject.Properties['deploymentState']) { 
-        $deployment.deploymentState 
-    } elseif ($deployment.PSObject.Properties['state']) { 
-        $deployment.state 
-    } else { 
-        'UNKNOWN' 
-    }
-    
-    Write-Host "✅ Found deployment: $deploymentId (Status: $deploymentState)" -ForegroundColor Green
-
-    if ($deploymentState -eq "PUBLISHED") {
-        Write-Host "ℹ️ Deployment already published" -ForegroundColor Cyan
-        exit 0
-    }
+    Write-Host "✅ Deployment validated and ready to publish" -ForegroundColor Green
 
     # Publish the deployment
-    Write-Host "🚀 Publishing deployment $deploymentId..." -ForegroundColor Blue
-    $publishUrl = "https://central.sonatype.com/api/v1/publisher/deployment/$deploymentId"
+    Write-Host "🚀 Publishing deployment $DeploymentId..." -ForegroundColor Blue
+    $publishUrl = "$apiBase/api/v1/publisher/deployment/$DeploymentId"
     Write-Host "  Calling: $publishUrl" -ForegroundColor Gray
     
     $publishResponse = Invoke-RestMethod -Uri $publishUrl -Headers $headers -Method Post -ErrorAction Stop

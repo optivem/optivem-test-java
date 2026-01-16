@@ -1,0 +1,34 @@
+name: 'Wait for Deployment Validation'
+description: 'Polls Maven Central deployment status until validated or failed'
+
+inputs:
+  deployment-id:
+    description: 'Maven Central deployment ID'
+    required: true
+  sonatype-username:
+    description: 'Sonatype username'
+    required: true
+  sonatype-password:
+    description: 'Sonatype password'
+    required: true
+  max-attempts:
+    description: 'Maximum number of polling attempts'
+    required: false
+    default: '30'
+  poll-interval:
+    description: 'Seconds between polling attempts'
+    required: false
+    default: '10'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Wait for validation
+      shell: pwsh
+      run: |
+        ${{ github.action_path }}/wait-for-deployment-validation.ps1 `
+          -DeploymentId "${{ inputs.deployment-id }}" `
+          -SonatypeUsername "${{ inputs.sonatype-username }}" `
+          -SonatypePassword "${{ inputs.sonatype-password }}" `
+          -MaxAttempts ${{ inputs.max-attempts }} `
+          -PollInterval ${{ inputs.poll-interval }}

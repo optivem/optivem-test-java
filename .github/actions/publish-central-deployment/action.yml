@@ -2,6 +2,9 @@ name: 'Publish Central Deployment'
 description: 'Publishes a deployment on Maven Central Portal via REST API'
 
 inputs:
+  deployment-id:
+    description: 'Maven Central deployment ID'
+    required: true
   release-version:
     description: 'Release version to publish'
     required: true

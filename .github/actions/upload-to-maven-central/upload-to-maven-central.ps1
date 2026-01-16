@@ -258,12 +258,22 @@ $curlArgs = @(
     '-F', 'publishingType=USER_MANAGED'
 )
 
-& curl @curlArgs
+# Capture the deployment ID from the response
+$deploymentId = & curl @curlArgs 2>&1 | Select-Object -Last 1
 
 if ($LASTEXITCODE -ne 0) {
     Write-Host "❌ Upload failed" -ForegroundColor Red
     exit 1
 }
 
+# Trim any whitespace from deployment ID
+$deploymentId = $deploymentId.Trim()
+
 Write-Host "✅ Upload completed successfully!" -ForegroundColor Green
+Write-Host "📋 Deployment ID: $deploymentId" -ForegroundColor Cyan
 Write-Host "🔗 Check status: https://central.sonatype.com/publishing/deployments" -ForegroundColor Cyan
+
+# Output the deployment ID for use by subsequent steps
+if ($env:GITHUB_OUTPUT) {
+    "deployment-id=$deploymentId" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+}

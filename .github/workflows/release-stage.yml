@@ -67,6 +67,7 @@ jobs:
       run: chmod +x gradlew
         
     - name: Upload release to Maven Central
+      id: upload
       uses: ./.github/actions/upload-to-maven-central
       with:
         release-version: ${{ steps.validate.outputs.release-version }}
@@ -75,9 +76,19 @@ jobs:
         gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
         gpg-passphrase: ${{ secrets.GPG_PASSPHRASE }}
     
+    - name: Wait for deployment validation
+      uses: ./.github/actions/wait-for-deployment-validation
+      with:
+        deployment-id: ${{ steps.upload.outputs.deployment-id }}
+        sonatype-username: ${{ secrets.SONATYPE_USERNAME }}
+        sonatype-password: ${{ secrets.SONATYPE_PASSWORD }}
+        max-attempts: '30'
+        poll-interval: '10'
+    
     - name: Publish deployment on Maven Central
       uses: ./.github/actions/publish-central-deployment
       with:
+        deployment-id: ${{ steps.upload.outputs.deployment-id }}
         release-version: ${{ steps.validate.outputs.release-version }}
         sonatype-username: ${{ secrets.SONATYPE_USERNAME }}
         sonatype-password: ${{ secrets.SONATYPE_PASSWORD }}

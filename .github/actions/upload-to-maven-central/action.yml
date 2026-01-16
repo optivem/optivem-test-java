@@ -70,10 +70,16 @@ inputs:
     required: false
     default: 'https://github.com/optivem/optivem-test-java'
 
+outputs:
+  deployment-id:
+    description: 'Maven Central deployment ID'
+    value: ${{ steps.upload.outputs.deployment-id }}
+
 runs:
   using: 'composite'
   steps:
     - name: Upload to Maven Central
+      id: upload
       shell: pwsh
       run: |
         ${{ github.action_path }}/upload-to-maven-central.ps1 `
