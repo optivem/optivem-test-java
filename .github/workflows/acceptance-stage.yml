@@ -35,13 +35,13 @@ jobs:
       run: chmod +x gradlew
       
     - name: Verify package dependencies can be resolved
-      run: ./gradlew system-test:smoke-test-rc:verifyDependencies --no-daemon
+      run: ./gradlew system-test:smoke-test-rc:verifyDependencies --no-daemon --refresh-dependencies
       env:
         GITHUB_USERNAME: ${{ github.actor }}
         GITHUB_READ_PACKAGES_TOKEN: ${{ secrets.READ_PACKAGES_TOKEN }}
         
     - name: Run acceptance tests (GitHub Packages)
-      run: ./gradlew system-test:smoke-test-rc:test --no-daemon
+      run: ./gradlew system-test:smoke-test-rc:test --no-daemon --refresh-dependencies
       env:
         GITHUB_USERNAME: ${{ github.actor }}
         GITHUB_READ_PACKAGES_TOKEN: ${{ secrets.READ_PACKAGES_TOKEN }}
