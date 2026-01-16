@@ -18,7 +18,11 @@ param(
 
 Write-Host "🏷️  Checking if Git tag v$ReleaseVersion already exists..." -ForegroundColor Blue
 
-# Check if Git tag already exists
+# Fetch remote tags first (GitHub Actions has shallow clone by default)
+Write-Host "📡 Fetching remote tags..." -ForegroundColor Cyan
+git fetch origin --tags 2>$null
+
+# Check if Git tag already exists (locally or remotely)
 $tagExists = git rev-parse "v$ReleaseVersion" 2>$null
 if ($LASTEXITCODE -eq 0) {
     Write-Host "❌ Git tag v$ReleaseVersion already exists!" -ForegroundColor Red
