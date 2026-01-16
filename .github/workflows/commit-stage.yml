@@ -52,7 +52,7 @@ jobs:
         GITHUB_WRITE_PACKAGES_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Publish to Maven Central
-      run: ./gradlew core:uploadToCentralPortal --no-daemon -Pversion="${{ steps.version.outputs.version }}" --no-configuration-cache
+      run: ./gradlew core:uploadToCentralPortal --no-daemon --no-configuration-cache -Pversion="${{ steps.version.outputs.version }}"
       env:
         SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
         SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}

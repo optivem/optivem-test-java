@@ -3,7 +3,7 @@ plugins {
     id 'jacoco'
     id 'maven-publish'
     id 'signing'
-    id 'com.gradleup.nmcp' version '0.0.8'
+    id 'com.gradleup.nmcp' version '0.0.9'
 }
 
 repositories {
@@ -111,7 +111,7 @@ def signingPassword = System.getenv("GPG_PASSPHRASE")
 
 if (signingKeyPath && signingPassword) {
     signing {
-        required = { gradle.taskGraph.hasTask("publishMavenPublicationToMavenCentralRepository") || gradle.taskGraph.hasTask("publishAllPublicationsToNmcpMavenRepository") }
+        required = { gradle.taskGraph.hasTask("publishMavenPublicationToMavenCentralRepository") || gradle.taskGraph.hasTask("publishAllPublicationsToNmcpMavenRepository") || gradle.taskGraph.hasTask("publishMavenPublicationToNmcpMavenRepository") }
         
         // Check if it's a file path or the actual key content
         def keyFile = new File(signingKeyPath)
@@ -125,6 +125,13 @@ if (signingKeyPath && signingPassword) {
         }
         sign publishing.publications.maven
     }
+    
+    // Ensure nmcp tasks depend on signing
+    tasks.withType(PublishToMavenRepository).configureEach { task ->
+        if (task.name.contains("Nmcp")) {
+            task.dependsOn tasks.withType(Sign)
+        }
+    }
 }
 
 task createCentralPortalBundle {
@@ -134,21 +141,22 @@ task createCentralPortalBundle {
     doLast {
         def username = System.getenv("SONATYPE_USERNAME")
         def password = System.getenv("SONATYPE_PASSWORD")
+        def projectVersion = project.version
         
         if (!username || !password) {
             throw new GradleException("SONATYPE_USERNAME and SONATYPE_PASSWORD environment variables must be set")
         }
         
         def localRepo = "${System.getProperty('user.home')}/.m2/repository"
-        def artifactPath = "${localRepo}/com/optivem/optivem-test/${version}"
+        def artifactPath = "${localRepo}/com/optivem/optivem-test/${projectVersion}"
         def buildPath = layout.buildDirectory.get().asFile.absolutePath
         def bundleDir = "${buildPath}/central-portal-bundle"
-        def mavenDir = "${bundleDir}/com/optivem/optivem-test/${version}"
+        def mavenDir = "${bundleDir}/com/optivem/optivem-test/${projectVersion}"
         def bundleZip = "${buildPath}/central-portal-bundle.zip"
         
         println "Creating bundle for Central Portal upload..."
         println "Username: ${username}"
-        println "Version: ${version}"
+        println "Version: ${projectVersion}"
         println "Artifact path: ${artifactPath}"
         println "Bundle path: ${bundleZip}"
         
@@ -158,10 +166,10 @@ task createCentralPortalBundle {
         
         // Copy all artifacts with checksums and signatures
         def filesToCopy = [
-            "optivem-test-${version}.pom",
-            "optivem-test-${version}.jar",
-            "optivem-test-${version}-sources.jar", 
-            "optivem-test-${version}-javadoc.jar"
+            "optivem-test-${projectVersion}.pom",
+            "optivem-test-${projectVersion}.jar",
+            "optivem-test-${projectVersion}-sources.jar", 
+            "optivem-test-${projectVersion}-javadoc.jar"
         ]
         
         filesToCopy.each { filename ->
@@ -171,29 +179,27 @@ task createCentralPortalBundle {
                 into mavenDir
             }
             
-            // Generate and copy checksums
-            def sourceFile = file("${artifactPath}/${filename}")
-            if (sourceFile.exists()) {
-                // Generate MD5 (just the hash value, no filename)
-                def md5Hash = ant.checksum(file: sourceFile, algorithm: "md5", property: "${filename}.md5")
-                def md5Value = ant.antProject.properties["${filename}.md5"]
-                file("${mavenDir}/${filename}.md5").text = "${md5Value}  ${filename}\n"
-                
-                // Generate SHA1 (just the hash value, no filename)  
-                def sha1Hash = ant.checksum(file: sourceFile, algorithm: "sha1", property: "${filename}.sha1")
-                def sha1Value = ant.antProject.properties["${filename}.sha1"]
-                file("${mavenDir}/${filename}.sha1").text = "${sha1Value}  ${filename}\n"
+            // Copy signature file if it exists
+            def signatureFile = "${artifactPath}/${filename}.asc"
+            if (file(signatureFile).exists()) {
+                copy {
+                    from signatureFile
+                    into mavenDir
+                }
             }
             
-            // Copy existing checksums and signatures if they exist
-            ['.md5', '.sha1', '.sha256', '.sha512', '.asc', '.asc.md5', '.asc.sha1'].each { ext ->
-                def extraFile = "${artifactPath}/${filename}${ext}"
-                if (file(extraFile).exists()) {
-                    copy {
-                        from extraFile
-                        into mavenDir
-                    }
-                }
+            // Generate proper checksums
+            def sourceFile = file("${artifactPath}/${filename}")
+            if (sourceFile.exists()) {
+                // Generate MD5 (just the hash value)
+                def md5Hash = ant.checksum(file: sourceFile, algorithm: "md5", property: "${filename}.md5")
+                def md5Value = ant.antProject.properties["${filename}.md5"]
+                file("${mavenDir}/${filename}.md5").text = md5Value
+                
+                // Generate SHA1 (just the hash value)
+                def sha1Hash = ant.checksum(file: sourceFile, algorithm: "sha1", property: "${filename}.sha1")
+                def sha1Value = ant.antProject.properties["${filename}.sha1"]
+                file("${mavenDir}/${filename}.sha1").text = sha1Value
             }
         }
         
