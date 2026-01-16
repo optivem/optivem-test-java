@@ -169,3 +169,23 @@ jobs:
         Write-Host "2. 🧪 Verify: .\trigger-verification.ps1 -Version `"${releaseVersion}`"" -ForegroundColor White
         Write-Host ""
         Write-Host "✅ Same artifacts that passed RC testing are now released!" -ForegroundColor Green
+        
+    - name: Create release summary
+      run: |
+        echo "## 🎉 Release Stage Completed" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Release Version:** \`${{ steps.validate.outputs.release-version }}\`" >> $GITHUB_STEP_SUMMARY
+        echo "**Promoted from RC:** \`${{ steps.validate.outputs.rc-version }}\`" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "🚀 **Release Activities:**" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ Downloaded RC artifacts from GitHub Packages" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ Uploaded and published to Maven Central" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ Created Git tag v${{ steps.validate.outputs.release-version }}" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ Created GitHub Release" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ Ran release smoke tests" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Status:** 🎉 Release published successfully!" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Next Steps:**" >> $GITHUB_STEP_SUMMARY
+        echo "- ⏳ Wait for Maven Central synchronization (may take a few minutes to hours)" >> $GITHUB_STEP_SUMMARY
+        echo "- 🧪 Verify availability using: \`trigger-verification.ps1 -Version \"${{ steps.validate.outputs.release-version }}\"\`" >> $GITHUB_STEP_SUMMARY

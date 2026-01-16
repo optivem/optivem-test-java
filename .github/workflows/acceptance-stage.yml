@@ -45,3 +45,17 @@ jobs:
       env:
         GITHUB_USERNAME: ${{ github.actor }}
         GITHUB_READ_PACKAGES_TOKEN: ${{ secrets.READ_PACKAGES_TOKEN }}
+        
+    - name: Create acceptance summary
+      run: |
+        echo "## ✅ Acceptance Stage Completed" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**RC Version Tested:** Latest RC from commit stage" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "🧪 **Tests Run:**" >> $GITHUB_STEP_SUMMARY
+        echo "- Dependency resolution verification" >> $GITHUB_STEP_SUMMARY
+        echo "- Smoke tests against GitHub Packages" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Status:** ✅ All acceptance tests passed" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Next Step:** RC is ready for promotion to release" >> $GITHUB_STEP_SUMMARY

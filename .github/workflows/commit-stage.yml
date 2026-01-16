@@ -17,6 +17,8 @@ jobs:
     permissions:
       contents: read
       packages: write
+    outputs:
+      rc-version: ${{ steps.version.outputs.version }}
 
     steps:
     - uses: actions/checkout@v4
@@ -74,3 +76,22 @@ jobs:
 
     - name: Generate and submit dependency graph
       uses: gradle/actions/dependency-submission@v4
+      
+    - name: Create commit summary
+      needs: build-and-publish
+      runs-on: ubuntu-latest
+      steps:
+      - name: Create summary
+        run: |
+          echo "## ✅ Commit Stage Completed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**RC Version Published:** \`${{ needs.build-and-publish.outputs.rc-version }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🚀 **Actions Completed:**" >> $GITHUB_STEP_SUMMARY
+          echo "- Built and tested core module" >> $GITHUB_STEP_SUMMARY
+          echo "- Published RC to GitHub Packages" >> $GITHUB_STEP_SUMMARY
+          echo "- Generated dependency submission" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Status:** ✅ RC ready for acceptance testing" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Next Step:** RC will be automatically tested in acceptance stage" >> $GITHUB_STEP_SUMMARY
