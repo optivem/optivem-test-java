@@ -45,6 +45,3 @@ jobs:
       env:
         GITHUB_USERNAME: ${{ github.actor }}
         GITHUB_READ_PACKAGES_TOKEN: ${{ secrets.READ_PACKAGES_TOKEN }}
-
-    - name: Run acceptance tests (Maven Central)
-      run: ./gradlew system-test:smoke-test-rc-mavencentral:test --no-daemon

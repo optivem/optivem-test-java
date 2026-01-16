@@ -72,7 +72,7 @@ jobs:
         GITHUB_USERNAME: ${{ github.actor }}
         GITHUB_WRITE_PACKAGES_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
-    - name: Run Release Smoke Tests
+    - name: Run Release Smoke Tests (GitHub Packages)
       run: ./gradlew system-test:smoke-test-release-github:test --no-daemon
       env:
         GITHUB_USERNAME: ${{ github.actor }}

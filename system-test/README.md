@@ -1,48 +1,50 @@
-# System Test Module
+# System Tests
 
-This module contains system-level tests for the Optivem Test Java project.
+This module contains smoke tests for validating artifact availability from different sources.
 
-## Purpose
+## Test Modules
 
-The system-test module is designed to run comprehensive end-to-end tests that verify the entire system's behavior, including:
+### GitHub Packages Tests
+- **smoke-test-rc-github**: Tests RC versions from GitHub Packages
+- **smoke-test-release-github**: Tests release versions from GitHub Packages
 
-- Integration tests across multiple modules
-- System-level functionality verification
-- End-to-end workflows testing
+### Maven Central Tests  
+- **smoke-test-rc-mavencentral**: Tests RC versions from Maven Central
+- **smoke-test-release-mavencentral**: Tests release versions from Maven Central
 
-## Structure
+## Usage
 
-- `src/main/java/` - Main source code (if needed for test utilities)
-- `src/test/java/` - System test implementations
-- `smoke-test-rc/` - Smoke tests for release candidate verification
-
-## Submodules
-
-### smoke-test-rc
-Smoke tests designed to verify the basic functionality of release candidate versions.
-
-### smoke-test-release
-Smoke tests designed to verify the basic functionality of stable release versions.
-
-## Running Tests
-
-To run all system tests:
+### Running all tests
 ```bash
 ./gradlew system-test:test
 ```
 
-To run smoke tests for RC versions:
+### Running specific source tests
 ```bash
-./gradlew system-test:smoke-test-rc:test
+# Test GitHub Packages availability
+./gradlew system-test:smoke-test-rc-github:test
+./gradlew system-test:smoke-test-release-github:test
+
+# Test Maven Central availability (use specific version)
+./gradlew system-test:smoke-test-rc-mavencentral:test -Pversion=1.0.5-rc.123
+./gradlew system-test:smoke-test-release-mavencentral:test -Pversion=1.0.5
 ```
 
-To run smoke tests for release versions:
-```bash
-./gradlew system-test:smoke-test-release:test
-```
+## Integration with CI/CD
 
-## Dependencies
+### Immediate Testing (GitHub Packages)
+- **acceptance-stage.yml**: Tests GitHub Packages immediately after publication
+- Uses dynamic version resolution (latest RC/release)
 
-This module depends on:
-- The main `optivem-test` library
-- JUnit for test framework
+### Delayed Testing (Maven Central) 
+- **maven-central-verification.yml**: Tests Maven Central after propagation delay
+- Uses event-driven triggers with configurable timing
+- See [Maven Central Verification Documentation](../docs/maven-central-verification.md)
+
+## Test Structure
+
+Each test module:
+1. Configures appropriate repository (GitHub Packages or Maven Central)
+2. Resolves the target version of `com.optivem:optivem-test`
+3. Runs a simple smoke test to verify the library loads correctly
+4. Reports success/failure for CI/CD validation

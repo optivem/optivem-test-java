@@ -1,0 +1,72 @@
+name: Maven Central Verification
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to verify on Maven Central'
+        required: true
+        type: string
+      delay_minutes:
+        description: 'Minutes to wait before verification'
+        required: false
+        default: '30'
+        type: string
+
+concurrency:
+  group: maven-central-verification-${{ github.event.inputs.version }}
+  cancel-in-progress: false
+
+jobs:
+  wait-and-verify:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v4
+      with:
+        gradle-version: wrapper
+        
+    - name: Make gradlew executable
+      run: chmod +x gradlew
+      
+    - name: Extract version info
+      id: version_info
+      run: |
+        VERSION="${{ github.event.inputs.version }}"
+        DELAY="${{ github.event.inputs.delay_minutes || '30' }}"
+        echo "version=${VERSION}" >> $GITHUB_OUTPUT
+        echo "delay=${DELAY}" >> $GITHUB_OUTPUT
+        echo "Verifying version: ${VERSION}"
+        echo "Delay: ${DELAY} minutes"
+        
+    - name: Wait for Maven Central propagation
+      run: |
+        echo "⏳ Waiting ${{ steps.version_info.outputs.delay }} minutes for Maven Central propagation..."
+        sleep $((${{ steps.version_info.outputs.delay }} * 60))
+        
+    - name: Verify RC version on Maven Central
+      if: contains(steps.version_info.outputs.version, '-rc.')
+      run: ./gradlew system-test:smoke-test-rc-mavencentral:test --no-daemon -Pversion="${{ steps.version_info.outputs.version }}"
+      
+    - name: Verify release version on Maven Central  
+      if: "!contains(steps.version_info.outputs.version, '-rc.')"
+      run: ./gradlew system-test:smoke-test-release-mavencentral:test --no-daemon -Pversion="${{ steps.version_info.outputs.version }}"
+      
+    - name: Notify verification result
+      if: always()
+      run: |
+        if [ "${{ job.status }}" == "success" ]; then
+          echo "✅ Maven Central verification successful for version ${{ steps.version_info.outputs.version }}"
+        else
+          echo "❌ Maven Central verification failed for version ${{ steps.version_info.outputs.version }}"
+        fi
