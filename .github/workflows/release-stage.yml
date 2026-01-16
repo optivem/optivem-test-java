@@ -82,13 +82,15 @@ jobs:
         sonatype-username: ${{ secrets.SONATYPE_USERNAME }}
         sonatype-password: ${{ secrets.SONATYPE_PASSWORD }}
         
-    - name: Run release smoke tests (GitHub Packages)
+    - name: Wait for Maven Central availability
+      uses: ./.github/actions/wait-for-maven-central
+      with:
+        release-version: ${{ steps.validate.outputs.release-version }}
+        
+    - name: Run release smoke tests (Maven Central)
       run: |
         echo "🧪 Running release smoke tests..."
-        ./gradlew system-test:smoke-test-release-github:test --no-daemon
-      env:
-        GITHUB_USERNAME: ${{ github.actor }}
-        GITHUB_READ_PACKAGES_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        ./gradlew system-test:smoke-test-release:test --no-daemon -Pversion="${{ steps.validate.outputs.release-version }}"
         
     - name: Create Git tag
       uses: ./.github/actions/create-git-tag

@@ -1,8 +1,0 @@
-repositories {
-    mavenCentral()
-}
-
-dependencies {
-    // Use the latest RC version from Maven Central matching the project version
-    testImplementation "com.optivem:optivem-test:${rootProject.ext.baseVersion}-rc.+"
-}

@@ -10,7 +10,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  smoke-test-rc-github:
+  smoke-test-rc:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -35,13 +35,13 @@ jobs:
       run: chmod +x gradlew
       
     - name: Verify package dependencies can be resolved
-      run: ./gradlew system-test:smoke-test-rc-github:verifyDependencies --no-daemon
+      run: ./gradlew system-test:smoke-test-rc:verifyDependencies --no-daemon
       env:
         GITHUB_USERNAME: ${{ github.actor }}
         GITHUB_READ_PACKAGES_TOKEN: ${{ secrets.READ_PACKAGES_TOKEN }}
         
     - name: Run acceptance tests (GitHub Packages)
-      run: ./gradlew system-test:smoke-test-rc-github:test --no-daemon
+      run: ./gradlew system-test:smoke-test-rc:test --no-daemon
       env:
         GITHUB_USERNAME: ${{ github.actor }}
         GITHUB_READ_PACKAGES_TOKEN: ${{ secrets.READ_PACKAGES_TOKEN }}

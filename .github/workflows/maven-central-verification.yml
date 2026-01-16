@@ -43,11 +43,11 @@ jobs:
         
     - name: Verify RC version on Maven Central
       if: contains(steps.version_info.outputs.version, '-rc.')
-      run: ./gradlew system-test:smoke-test-rc-mavencentral:test --no-daemon -Pversion="${{ steps.version_info.outputs.version }}"
+      run: ./gradlew system-test:smoke-test-rc:test --no-daemon -Pversion="${{ steps.version_info.outputs.version }}"
       
     - name: Verify release version on Maven Central  
       if: "!contains(steps.version_info.outputs.version, '-rc.')"
-      run: ./gradlew system-test:smoke-test-release-mavencentral:test --no-daemon -Pversion="${{ steps.version_info.outputs.version }}"
+      run: ./gradlew system-test:smoke-test-release:test --no-daemon -Pversion="${{ steps.version_info.outputs.version }}"
       
     - name: Notify verification result
       if: always()

@@ -1,0 +1,66 @@
+name: 'Wait for Maven Central Availability'
+description: 'Polls Maven Central to verify artifact availability before running tests'
+inputs:
+  release-version:
+    description: 'The release version to check on Maven Central'
+    required: true
+  group-id:
+    description: 'Maven group ID (default: com.optivem)'
+    required: false
+    default: 'com.optivem'
+  artifact-id:
+    description: 'Maven artifact ID (default: optivem-test)'
+    required: false
+    default: 'optivem-test'
+  max-attempts:
+    description: 'Maximum number of polling attempts (default: 60)'
+    required: false
+    default: '60'
+  wait-seconds:
+    description: 'Seconds to wait between attempts (default: 60)'
+    required: false
+    default: '60'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Poll Maven Central for artifact availability
+      shell: bash
+      run: |
+        VERSION="${{ inputs.release-version }}"
+        GROUP_PATH=$(echo "${{ inputs.group-id }}" | tr '.' '/')
+        ARTIFACT_ID="${{ inputs.artifact-id }}"
+        MAX_ATTEMPTS=${{ inputs.max-attempts }}
+        WAIT_SECONDS=${{ inputs.wait-seconds }}
+        ATTEMPT=0
+        
+        echo "⏳ Waiting for artifact to be available on Maven Central..."
+        echo "📦 Artifact: ${{ inputs.group-id }}:${ARTIFACT_ID}:${VERSION}"
+        echo "🔄 Will check every ${WAIT_SECONDS} seconds for up to ${MAX_ATTEMPTS} attempts"
+        echo ""
+        
+        while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
+          ATTEMPT=$((ATTEMPT + 1))
+          echo "🔍 Attempt ${ATTEMPT}/${MAX_ATTEMPTS}: Checking Maven Central..."
+          
+          # Check if POM file exists on Maven Central
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+            "https://repo1.maven.org/maven2/${GROUP_PATH}/${ARTIFACT_ID}/${VERSION}/${ARTIFACT_ID}-${VERSION}.pom")
+          
+          if [ "$HTTP_CODE" = "200" ]; then
+            echo "✅ Artifact found on Maven Central!"
+            echo "🎉 Ready to run smoke tests"
+            exit 0
+          fi
+          
+          echo "⏳ Not yet available (HTTP ${HTTP_CODE}). Waiting ${WAIT_SECONDS} seconds..."
+          
+          if [ $ATTEMPT -lt $MAX_ATTEMPTS ]; then
+            sleep $WAIT_SECONDS
+          fi
+        done
+        
+        echo "❌ Timeout: Artifact not available after ${MAX_ATTEMPTS} attempts"
+        echo "⚠️  This might be normal - Maven Central sync can take time"
+        echo "📋 You can verify later with: .\trigger-verification.ps1 -Version \"${VERSION}\""
+        exit 1
