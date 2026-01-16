@@ -3,6 +3,7 @@ plugins {
     id 'jacoco'
     id 'maven-publish'
     id 'signing'
+    id 'com.gradleup.nmcp' version '0.0.8'
 }
 
 repositories {
@@ -93,14 +94,14 @@ publishing {
                 password = System.getenv("GITHUB_WRITE_PACKAGES_TOKEN")
             }
         }
-        maven {
-            name = "MavenCentral"
-            url = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
-            credentials {
-                username = System.getenv("SONATYPE_USERNAME")
-                password = System.getenv("SONATYPE_PASSWORD")
-            }
-        }
+    }
+}
+
+nmcp {
+    publish("maven") {
+        username = System.getenv("SONATYPE_USERNAME")
+        password = System.getenv("SONATYPE_PASSWORD")
+        publicationType = "USER_MANAGED"
     }
 }
 
@@ -174,15 +175,15 @@ task createCentralPortalBundle {
             // Generate and copy checksums
             def sourceFile = file("${artifactPath}/${filename}")
             if (sourceFile.exists()) {
-                // Generate MD5
-                def md5 = ant.checksum(file: sourceFile, algorithm: "md5", property: "md5")
-                def md5Value = ant.antProject.properties["md5"]
-                file("${mavenDir}/${filename}.md5").text = md5Value
+                // Generate MD5 (just the hash value, no filename)
+                def md5Hash = ant.checksum(file: sourceFile, algorithm: "md5", property: "${filename}.md5")
+                def md5Value = ant.antProject.properties["${filename}.md5"]
+                file("${mavenDir}/${filename}.md5").text = "${md5Value}  ${filename}\n"
                 
-                // Generate SHA1  
-                def sha1 = ant.checksum(file: sourceFile, algorithm: "sha1", property: "sha1")
-                def sha1Value = ant.antProject.properties["sha1"]
-                file("${mavenDir}/${filename}.sha1").text = sha1Value
+                // Generate SHA1 (just the hash value, no filename)  
+                def sha1Hash = ant.checksum(file: sourceFile, algorithm: "sha1", property: "${filename}.sha1")
+                def sha1Value = ant.antProject.properties["${filename}.sha1"]
+                file("${mavenDir}/${filename}.sha1").text = "${sha1Value}  ${filename}\n"
             }
             
             // Copy existing checksums and signatures if they exist
