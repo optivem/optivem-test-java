@@ -76,6 +76,7 @@ jobs:
         GITHUB_WRITE_PACKAGES_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
     - name: Upload release to Maven Central
+      id: upload-central
       run: |
         echo "📤 Uploading release to Maven Central..."
         RELEASE_VERSION="${{ steps.validate.outputs.release-version }}"
@@ -85,8 +86,15 @@ jobs:
         SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
         GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
         GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+    
+    - name: Publish deployment on Maven Central
+      uses: ./.github/actions/publish-central-deployment
+      with:
+        release-version: ${{ steps.validate.outputs.release-version }}
+        sonatype-username: ${{ secrets.SONATYPE_USERNAME }}
+        sonatype-password: ${{ secrets.SONATYPE_PASSWORD }}
         
-    - name: Run release smoke tests
+    - name: Run release smoke tests (GitHub Packages)
       run: |
         echo "🧪 Running release smoke tests..."
         ./gradlew system-test:smoke-test-release-github:test --no-daemon
@@ -120,10 +128,12 @@ jobs:
           **Promoted Artifacts:**
           - Same exact JAR that passed testing
           - No rebuild - identical artifacts guaranteed
+          - ✅ Automatically published to Maven Central
           
           **Next Steps:**
-          📤 Manually publish in [Central Portal](https://central.sonatype.com/publishing/deployments)  
-          🧪 Then verify: `.\trigger-verification.ps1 -Version "${{ steps.validate.outputs.release-version }}"`
+          🧪 Verify availability: `.\trigger-verification.ps1 -Version "${{ steps.validate.outputs.release-version }}"`
+          
+          **Note:** Maven Central synchronization may take a few minutes to hours.
         files: |
           core/build/libs/*.jar
         generate_release_notes: true
@@ -137,9 +147,15 @@ jobs:
         Write-Host ""
         Write-Host "🎉 Release promotion completed successfully!" -ForegroundColor Green
         Write-Host ""
+        Write-Host "📋 What happened:" -ForegroundColor Cyan
+        Write-Host "1. ✅ Downloaded RC artifacts from GitHub Packages" -ForegroundColor White
+        Write-Host "2. ✅ Published release to GitHub Packages" -ForegroundColor White
+        Write-Host "3. ✅ Uploaded and published to Maven Central" -ForegroundColor White
+        Write-Host "4. ✅ Created Git tag v${releaseVersion}" -ForegroundColor White
+        Write-Host "5. ✅ Created GitHub Release" -ForegroundColor White
+        Write-Host ""
         Write-Host "📋 Next Steps:" -ForegroundColor Cyan
-        Write-Host "1. 🌐 Go to: https://central.sonatype.com/publishing/deployments" -ForegroundColor White
-        Write-Host "2. 📤 Manually publish version: ${releaseVersion}" -ForegroundColor White
-        Write-Host "3. 🧪 Verify: .\trigger-verification.ps1 -Version `"${releaseVersion}`"" -ForegroundColor White
+        Write-Host "1. ⏳ Wait a few minutes for Maven Central synchronization" -ForegroundColor White
+        Write-Host "2. 🧪 Verify: .\trigger-verification.ps1 -Version `"${releaseVersion}`"" -ForegroundColor White
         Write-Host ""
         Write-Host "✅ Same artifacts that passed RC testing are now released!" -ForegroundColor Green
