@@ -17,81 +17,18 @@ inputs:
   gpg-passphrase:
     description: 'GPG passphrase'
     required: true
-  group-id:
-    description: 'Maven group ID'
-    required: false
-    default: 'com.optivem'
-  artifact-id:
-    description: 'Maven artifact ID'
-    required: false
-    default: 'optivem-test'
-  project-name:
-    description: 'Project display name'
-    required: false
-    default: 'Optivem Test Library'
-  project-description:
-    description: 'Project description'
-    required: false
-    default: 'A simple calculator library for testing purposes'
-  project-url:
-    description: 'Project URL'
-    required: false
-    default: 'https://github.com/optivem/optivem-test-java'
-  license-name:
-    description: 'License name'
-    required: false
-    default: 'MIT License'
-  license-url:
-    description: 'License URL'
-    required: false
-    default: 'https://opensource.org/licenses/MIT'
-  developer-id:
-    description: 'Developer ID'
-    required: false
-    default: 'optivem'
-  developer-name:
-    description: 'Developer name'
-    required: false
-    default: 'Optivem'
-  developer-email:
-    description: 'Developer email'
-    required: false
-    default: 'info@optivem.com'
-  scm-connection:
-    description: 'SCM connection URL'
-    required: false
-    default: 'scm:git:git://github.com/optivem/optivem-test-java.git'
-  scm-developer-connection:
-    description: 'SCM developer connection URL'
-    required: false
-    default: 'scm:git:ssh://github.com:optivem/optivem-test-java.git'
-  scm-url:
-    description: 'SCM URL'
-    required: false
-    default: 'https://github.com/optivem/optivem-test-java'
 
 runs:
   using: 'composite'
   steps:
     - name: Upload to Maven Central
-      shell: pwsh
+      shell: bash
       run: |
-        ${{ github.action_path }}/upload-to-maven-central.ps1 `
-          -ReleaseVersion "${{ inputs.release-version }}" `
-          -SonatypeUsername "${{ inputs.sonatype-username }}" `
-          -SonatypePassword "${{ inputs.sonatype-password }}" `
-          -GpgPrivateKey "${{ inputs.gpg-private-key }}" `
-          -GpgPassphrase "${{ inputs.gpg-passphrase }}" `
-          -GroupId "${{ inputs.group-id }}" `
-          -ArtifactId "${{ inputs.artifact-id }}" `
-          -ProjectName "${{ inputs.project-name }}" `
-          -ProjectDescription "${{ inputs.project-description }}" `
-          -ProjectUrl "${{ inputs.project-url }}" `
-          -LicenseName "${{ inputs.license-name }}" `
-          -LicenseUrl "${{ inputs.license-url }}" `
-          -DeveloperId "${{ inputs.developer-id }}" `
-          -DeveloperName "${{ inputs.developer-name }}" `
-          -DeveloperEmail "${{ inputs.developer-email }}" `
-          -ScmConnection "${{ inputs.scm-connection }}" `
-          -ScmDeveloperConnection "${{ inputs.scm-developer-connection }}" `
-          -ScmUrl "${{ inputs.scm-url }}"
+        cd ${{ github.workspace }}
+        ./gradlew :core:uploadToCentralPortal --no-daemon \
+          -Pversion="${{ inputs.release-version }}"
+      env:
+        SONATYPE_USERNAME: ${{ inputs.sonatype-username }}
+        SONATYPE_PASSWORD: ${{ inputs.sonatype-password }}
+        GPG_PRIVATE_KEY: ${{ inputs.gpg-private-key }}
+        GPG_PASSPHRASE: ${{ inputs.gpg-passphrase }}
