@@ -1,0 +1,32 @@
+name: 'Find Latest RC Version'
+description: 'Finds the latest RC version from GitHub Packages if no version is provided'
+
+inputs:
+  rc-version:
+    description: 'RC version to use (optional - if empty, will find latest)'
+    required: false
+  github-token:
+    description: 'GitHub token for API access'
+    required: true
+  repository:
+    description: 'GitHub repository (owner/repo)'
+    required: false
+    default: ${{ github.repository }}
+  package-name:
+    description: 'Package name in GitHub Packages'
+    required: false
+    default: 'com.optivem.optivem-test'
+
+outputs:
+  rc-version:
+    description: 'The RC version to use (either provided or latest found)'
+    value: ${{ steps.find-rc.outputs.rc-version }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Find latest RC version if not provided
+      id: find-rc
+      shell: pwsh
+      run: |
+        ./.github/scripts/find-latest-rc-version.ps1 -RcVersion "${{ inputs.rc-version }}" -GitHubToken "${{ inputs.github-token }}" -Repository "${{ inputs.repository }}" -PackageName "${{ inputs.package-name }}"

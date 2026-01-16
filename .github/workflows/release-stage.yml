@@ -21,34 +21,10 @@ jobs:
       
     - name: Find latest RC version if not provided
       id: find-rc
-      shell: pwsh
-      run: |
-        $rcVersion = "${{ github.event.inputs.rc_version }}"
-        if ([string]::IsNullOrWhiteSpace($rcVersion)) {
-          Write-Host "🔍 No RC version provided, finding latest RC version..." -ForegroundColor Blue
-          
-          # Call GitHub API to get latest RC version
-          $headers = @{
-            "Authorization" = "Bearer ${{ secrets.GITHUB_TOKEN }}"
-            "Accept" = "application/vnd.github+json"
-          }
-          
-          $response = Invoke-RestMethod -Uri "https://api.github.com/repos/${{ github.repository }}/packages/maven/com.optivem.optivem-test/versions" -Headers $headers
-          
-          $rcVersions = $response | Where-Object { $_.name -like "*-rc.*" } | Sort-Object { [datetime]$_.created_at } -Descending
-          
-          if ($rcVersions.Count -eq 0) {
-            Write-Host "❌ No RC versions found in GitHub Packages" -ForegroundColor Red
-            exit 1
-          }
-          
-          $latestRc = $rcVersions[0].name
-          Write-Host "✅ Found latest RC version: $latestRc" -ForegroundColor Green
-          echo "rc-version=$latestRc" >> $env:GITHUB_OUTPUT
-        } else {
-          Write-Host "📋 Using provided RC version: $rcVersion" -ForegroundColor Green
-          echo "rc-version=$rcVersion" >> $env:GITHUB_OUTPUT
-        }
+      uses: ./.github/actions/find-latest-rc-version
+      with:
+        rc-version: ${{ github.event.inputs.rc_version }}
+        github-token: ${{ secrets.GITHUB_TOKEN }}
       
     - name: Validate inputs
       id: validate
@@ -61,6 +37,19 @@ jobs:
       with:
         release-version: ${{ steps.validate.outputs.release-version }}
         github-token: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Download RC artifacts
+      uses: ./.github/actions/download-rc-artifacts
+      with:
+        rc-version: ${{ steps.validate.outputs.rc-version }}
+        github-username: ${{ github.actor }}
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Prepare release artifacts
+      uses: ./.github/actions/prepare-release-artifacts
+      with:
+        rc-version: ${{ steps.validate.outputs.rc-version }}
+        release-version: ${{ steps.validate.outputs.release-version }}
       
     - name: Set up JDK 21
       uses: actions/setup-java@v4
@@ -75,19 +64,6 @@ jobs:
         
     - name: Make gradlew executable
       run: chmod +x gradlew
-
-    - name: Download RC artifacts
-      uses: ./.github/actions/download-rc-artifacts
-      with:
-        rc-version: ${{ steps.validate.outputs.rc-version }}
-        github-username: ${{ github.actor }}
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        
-    - name: Prepare release artifacts
-      uses: ./.github/actions/prepare-release-artifacts
-      with:
-        rc-version: ${{ steps.validate.outputs.rc-version }}
-        release-version: ${{ steps.validate.outputs.release-version }}
         
     - name: Publish release to GitHub Packages
       run: |

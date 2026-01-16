@@ -37,54 +37,31 @@ param(
 Write-Host "📥 Downloading RC artifacts from GitHub Packages..." -ForegroundColor Blue
 New-Item -ItemType Directory -Path "temp-artifacts" -Force | Out-Null
 
-# Create temporary Gradle build file
-$gradleContent = @"
-repositories {
-    maven {
-        url = uri("https://maven.pkg.github.com/$Repository")
-        credentials {
-            username = project.findProperty("gpr.user") ?: System.getenv("GITHUB_USERNAME")
-            password = project.findProperty("gpr.key") ?: System.getenv("GITHUB_READ_PACKAGES_TOKEN")
-        }
-    }
+# GitHub Packages Maven repository base URL
+$baseUrl = "https://maven.pkg.github.com/$Repository/com/optivem/optivem-test/$RcVersion"
+$authHeader = @{
+    "Authorization" = "Bearer $GitHubToken"
 }
 
-configurations {
-    rcArtifacts
-}
+$artifacts = @(
+    "optivem-test-${RcVersion}.jar",
+    "optivem-test-${RcVersion}-sources.jar", 
+    "optivem-test-${RcVersion}-javadoc.jar"
+)
 
-dependencies {
-    rcArtifacts 'com.optivem:optivem-test:$RcVersion'
-    rcArtifacts 'com.optivem:optivem-test:$RcVersion:sources'
-    rcArtifacts 'com.optivem:optivem-test:$RcVersion:javadoc'
-}
-
-task downloadRcArtifacts(type: Copy) {
-    from configurations.rcArtifacts
-    into 'temp-artifacts'
-}
-"@
-
-$gradleContent | Out-File -FilePath "temp-download.gradle" -Encoding utf8
-
-# Set environment variables for Gradle
-$env:GITHUB_USERNAME = $GitHubUsername
-$env:GITHUB_READ_PACKAGES_TOKEN = $GitHubToken
-
-try {
-    Write-Host "Using ./gradlew" -ForegroundColor Cyan
-    & "./gradlew" --build-file temp-download.gradle downloadRcArtifacts
+foreach ($artifact in $artifacts) {
+    $url = "$baseUrl/$artifact"
+    $outputPath = "temp-artifacts\$artifact"
     
-    if ($LASTEXITCODE -ne 0) {
-        Write-Host "❌ Failed to download artifacts (exit code: $LASTEXITCODE)" -ForegroundColor Red
+    Write-Host "⬇️ Downloading $artifact..." -ForegroundColor Yellow
+    
+    try {
+        Invoke-WebRequest -Uri $url -Headers $authHeader -OutFile $outputPath -ErrorAction Stop
+        Write-Host "✅ Downloaded $artifact" -ForegroundColor Green
+    } catch {
+        Write-Host "❌ Failed to download $artifact`: $($_.Exception.Message)" -ForegroundColor Red
         exit 1
     }
-    
-    Write-Host "✅ Artifacts downloaded successfully" -ForegroundColor Green
-    
-} finally {
-    # Clean up temporary file
-    if (Test-Path "temp-download.gradle") {
-        Remove-Item "temp-download.gradle"
-    }
 }
+
+Write-Host "✅ All artifacts downloaded successfully" -ForegroundColor Green
