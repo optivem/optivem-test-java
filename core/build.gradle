@@ -241,17 +241,17 @@ task createCentralPortalBundle {
         
         // Generate checksums for all files (including signatures)
         println "📝 Generating checksums..."
-        fileTree(mavenDir).each { file ->
-            if (!file.name.endsWith('.md5') && !file.name.endsWith('.sha1')) {
+        fileTree(mavenDir).each { currentFile ->
+            if (!currentFile.name.endsWith('.md5') && !currentFile.name.endsWith('.sha1')) {
                 // MD5
-                def md5Hash = ant.checksum(file: file, algorithm: "md5", property: "${file.name}.md5")
-                def md5Value = ant.antProject.properties["${file.name}.md5"]
-                file("${file.absolutePath}.md5").text = md5Value
+                def md5Hash = ant.checksum(file: currentFile, algorithm: "md5", property: "${currentFile.name}.md5")
+                def md5Value = ant.antProject.properties["${currentFile.name}.md5"]
+                file("${currentFile.absolutePath}.md5").text = md5Value
                 
                 // SHA1
-                def sha1Hash = ant.checksum(file: file, algorithm: "sha1", property: "${file.name}.sha1")
-                def sha1Value = ant.antProject.properties["${file.name}.sha1"]
-                file("${file.absolutePath}.sha1").text = sha1Value
+                def sha1Hash = ant.checksum(file: currentFile, algorithm: "sha1", property: "${currentFile.name}.sha1")
+                def sha1Value = ant.antProject.properties["${currentFile.name}.sha1"]
+                file("${currentFile.absolutePath}.sha1").text = sha1Value
             }
         }
         
