@@ -45,7 +45,7 @@ jobs:
     - name: Build core module
       run: ./gradlew core:build --no-daemon -Pversion="${{ steps.version.outputs.version }}"
 
-    - name: Publish to GitHub Packages
+    - name: Publish RC to GitHub Packages
       run: ./gradlew core:publishMavenPublicationToGitHubPackagesRepository --no-daemon -Pversion="${{ steps.version.outputs.version }}"
       env:
         GITHUB_USERNAME: ${{ github.actor }}
