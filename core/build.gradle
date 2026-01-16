@@ -152,7 +152,7 @@ task createCentralPortalBundle {
         def buildPath = layout.buildDirectory.get().asFile.absolutePath
         def bundleDir = "${buildPath}/central-portal-bundle"
         def mavenDir = "${bundleDir}/com/optivem/optivem-test/${projectVersion}"
-        def bundleZip = "${buildPath}/central-portal-bundle.zip"
+        def bundleZip = "${buildPath}/optivem-test-${projectVersion}.zip"
         
         println "Creating bundle for Central Portal upload..."
         println "Username: ${username}"
@@ -237,8 +237,9 @@ task uploadToCentralPortal(type: Exec) {
     doFirst {
         def username = System.getenv("SONATYPE_USERNAME")
         def password = System.getenv("SONATYPE_PASSWORD")
+        def projectVersion = project.version
         def buildPath = layout.buildDirectory.get().asFile.absolutePath
-        def bundleZip = "${buildPath}/central-portal-bundle.zip"
+        def bundleZip = "${buildPath}/optivem-test-${projectVersion}.zip"
         
         if (!username || !password) {
             throw new GradleException("SONATYPE_USERNAME and SONATYPE_PASSWORD environment variables must be set")
