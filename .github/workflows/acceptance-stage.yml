@@ -38,13 +38,13 @@ jobs:
       run: ./gradlew system-test:smoke-test-rc:verifyDependencies --no-daemon --refresh-dependencies
       env:
         GITHUB_USERNAME: ${{ github.actor }}
-        GITHUB_READ_PACKAGES_TOKEN: ${{ secrets.READ_PACKAGES_TOKEN }}
+        GITHUB_READ_PACKAGES_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
     - name: Run acceptance tests (GitHub Packages)
       run: ./gradlew system-test:smoke-test-rc:test --no-daemon --refresh-dependencies
       env:
         GITHUB_USERNAME: ${{ github.actor }}
-        GITHUB_READ_PACKAGES_TOKEN: ${{ secrets.READ_PACKAGES_TOKEN }}
+        GITHUB_READ_PACKAGES_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
     - name: Create acceptance summary
       run: |
