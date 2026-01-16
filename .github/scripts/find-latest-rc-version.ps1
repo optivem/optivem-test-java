@@ -38,13 +38,17 @@ param(
 if ([string]::IsNullOrWhiteSpace($RcVersion)) {
     Write-Host "🔍 No RC version provided, finding latest RC version..." -ForegroundColor Blue
     
+    # Extract owner from repository (owner/repo format)
+    $owner = $Repository.Split('/')[0]
+    
     # Call GitHub API to get latest RC version
     $headers = @{
         "Authorization" = "Bearer $GitHubToken"
         "Accept" = "application/vnd.github+json"
     }
     
-    $response = Invoke-RestMethod -Uri "https://api.github.com/repos/$Repository/packages/maven/$PackageName/versions" -Headers $headers
+    # Use correct GitHub Packages API URL
+    $response = Invoke-RestMethod -Uri "https://api.github.com/orgs/$owner/packages/maven/$PackageName/versions" -Headers $headers
     
     $rcVersions = $response | Where-Object { $_.name -like "*-rc.*" } | Sort-Object { [datetime]$_.created_at } -Descending
     
