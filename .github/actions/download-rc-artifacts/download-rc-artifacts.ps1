@@ -55,13 +55,26 @@ foreach ($artifact in $artifacts) {
     
     Write-Host "⬇️ Downloading $artifact..." -ForegroundColor Yellow
     
-    try {
-        Invoke-WebRequest -Uri $url -Headers $authHeader -OutFile $outputPath -ErrorAction Stop
-        Write-Host "✅ Downloaded $artifact" -ForegroundColor Green
-    } catch {
-        Write-Host "❌ Failed to download required artifact $artifact`: $($_.Exception.Message)" -ForegroundColor Red
-        Write-Host "💡 Ensure your RC build publishes sources and javadoc JARs to GitHub Packages" -ForegroundColor Cyan
-        exit 1
+    $maxRetries = 3
+    $retryCount = 0
+    $success = $false
+    
+    while (-not $success -and $retryCount -lt $maxRetries) {
+        try {
+            Invoke-WebRequest -Uri $url -Headers $authHeader -OutFile $outputPath -ErrorAction Stop
+            Write-Host "✅ Downloaded $artifact" -ForegroundColor Green
+            $success = $true
+        } catch {
+            $retryCount++
+            if ($retryCount -lt $maxRetries) {
+                Write-Host "⚠️ Attempt $retryCount failed, retrying in 5 seconds..." -ForegroundColor Yellow
+                Start-Sleep -Seconds 5
+            } else {
+                Write-Host "❌ Failed to download required artifact $artifact after $maxRetries attempts: $($_.Exception.Message)" -ForegroundColor Red
+                Write-Host "💡 Ensure your RC build publishes sources and javadoc JARs to GitHub Packages" -ForegroundColor Cyan
+                exit 1
+            }
+        }
     }
 }
 
