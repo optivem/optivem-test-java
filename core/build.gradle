@@ -58,7 +58,7 @@ publishing {
             
             pom {
                 name = 'Optivem Test Library'
-                description = 'A simple calculator library for testing purposes'
+                description = 'A simple test library for testing purposes'
                 url = 'https://github.com/optivem/optivem-test-java'
                 
                 licenses {

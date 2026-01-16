@@ -4,7 +4,7 @@
 [![Acceptance Stage](https://github.com/optivem/optivem-test-java/actions/workflows/acceptance-stage.yml/badge.svg)](https://github.com/optivem/optivem-test-java/actions/workflows/acceptance-stage.yml)
 [![Release Stage](https://github.com/optivem/optivem-test-java/actions/workflows/release-stage.yml/badge.svg)](https://github.com/optivem/optivem-test-java/actions/workflows/release-stage.yml)
 
-A simple calculator library built with Java 21 and Gradle for testing and demonstration purposes.
+A simple test library built with Java 21 and Gradle for testing and demonstration purposes.
 
 ## Features
 
@@ -46,17 +46,14 @@ dependencies {
 ### Code Example
 
 ```java
-import com.optivem.test.CalculatorService;
+import com.optivem.test.Channel;
 
 public class Example {
     public static void main(String[] args) {
-        CalculatorService calculator = new CalculatorService();
+        Channel channel = new Channel("test-channel");
         
-        double result = calculator.add(5.0, 3.0);
-        System.out.println("5 + 3 = " + result); // Output: 5 + 3 = 8.0
-        
-        result = calculator.multiply(4.0, 2.5);
-        System.out.println("4 * 2.5 = " + result); // Output: 4 * 2.5 = 10.0
+        String name = channel.getName();
+        System.out.println("Channel name: " + name);  // Output: test-channel
     }
 }
 ```
