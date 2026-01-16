@@ -72,16 +72,11 @@ $env:GITHUB_USERNAME = $GitHubUsername
 $env:GITHUB_READ_PACKAGES_TOKEN = $GitHubToken
 
 try {
-    if (Test-Path "gradlew.bat") {
-        .\gradlew.bat -b temp-download.gradle downloadRcArtifacts
-    } elseif (Test-Path "gradlew") {
-        .\gradlew -b temp-download.gradle downloadRcArtifacts
-    } else {
-        gradle -b temp-download.gradle downloadRcArtifacts
-    }
+    Write-Host "Using ./gradlew" -ForegroundColor Cyan
+    & "./gradlew" -b temp-download.gradle downloadRcArtifacts
     
     if ($LASTEXITCODE -ne 0) {
-        Write-Host "❌ Failed to download artifacts" -ForegroundColor Red
+        Write-Host "❌ Failed to download artifacts (exit code: $LASTEXITCODE)" -ForegroundColor Red
         exit 1
     }
     
