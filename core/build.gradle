@@ -135,123 +135,71 @@ if (signingKeyPath && signingPassword) {
 }
 
 task createCentralPortalBundle {
-    description 'Create a bundle for Sonatype Central Portal upload using existing artifacts (no rebuild)'
+    dependsOn 'publishToMavenLocal'
+    description 'Create a bundle for Sonatype Central Portal upload with proper structure'
     
     doLast {
+        def username = System.getenv("SONATYPE_USERNAME")
+        def password = System.getenv("SONATYPE_PASSWORD")
         def projectVersion = project.version
+        
+        if (!username || !password) {
+            throw new GradleException("SONATYPE_USERNAME and SONATYPE_PASSWORD environment variables must be set")
+        }
+        
+        def localRepo = "${System.getProperty('user.home')}/.m2/repository"
+        def artifactPath = "${localRepo}/com/optivem/optivem-test/${projectVersion}"
         def buildPath = layout.buildDirectory.get().asFile.absolutePath
-        def artifactsDir = "${buildPath}/libs"
         def bundleDir = "${buildPath}/central-portal-bundle"
         def mavenDir = "${bundleDir}/com/optivem/optivem-test/${projectVersion}"
         def bundleZip = "${buildPath}/optivem-test-${projectVersion}.zip"
         
-        println "Creating bundle from existing artifacts (NO REBUILD)..."
+        println "Creating bundle for Central Portal upload..."
+        println "Username: ${username}"
         println "Version: ${projectVersion}"
-        println "Artifacts dir: ${artifactsDir}"
+        println "Artifact path: ${artifactPath}"
         println "Bundle path: ${bundleZip}"
-        
-        // Verify artifacts exist
-        def requiredArtifacts = [
-            "${artifactsDir}/optivem-test-${projectVersion}.jar",
-            "${artifactsDir}/optivem-test-${projectVersion}-sources.jar",
-            "${artifactsDir}/optivem-test-${projectVersion}-javadoc.jar"
-        ]
-        
-        requiredArtifacts.each { artifactPath ->
-            if (!file(artifactPath).exists()) {
-                throw new GradleException("Required artifact not found: ${artifactPath}")
-            }
-        }
-        
-        println "✅ All required artifacts found"
         
         // Create bundle directory structure
         delete bundleDir
         mkdir mavenDir
         
-        // Generate POM from publication configuration
-        def pomFile = file("${mavenDir}/optivem-test-${projectVersion}.pom")
-        publishing.publications.maven.pom.writeTo(pomFile)
-        
-        // Copy JAR artifacts to bundle
-        def filesToBundle = [
+        // Copy all artifacts with checksums and signatures
+        def filesToCopy = [
             "optivem-test-${projectVersion}.pom",
             "optivem-test-${projectVersion}.jar",
-            "optivem-test-${projectVersion}-sources.jar",
+            "optivem-test-${projectVersion}-sources.jar", 
             "optivem-test-${projectVersion}-javadoc.jar"
         ]
         
-        // Copy JAR files
-        requiredArtifacts.each { artifactPath ->
+        filesToCopy.each { filename ->
+            // Copy main file
             copy {
-                from artifactPath
+                from "${artifactPath}/${filename}"
                 into mavenDir
             }
-        }
-        
-        // Sign all files if signing is configured
-        def signingKeyPath = System.getenv("GPG_PRIVATE_KEY")
-        def signingPassword = System.getenv("GPG_PASSPHRASE")
-        
-        if (signingKeyPath && signingPassword) {
-            println "🔐 Signing artifacts..."
             
-            filesToBundle.each { filename ->
-                def fileToSign = file("${mavenDir}/${filename}")
-                def signatureFile = file("${mavenDir}/${filename}.asc")
-                
-                if (fileToSign.exists()) {
-                    // Import GPG key
-                    def keyFile = new File(signingKeyPath)
-                    def keyContent = keyFile.exists() ? keyFile.text : signingKeyPath
-                    def keyTempFile = File.createTempFile("gpg-key", ".asc")
-                    keyTempFile.text = keyContent
-                    
-                    exec {
-                        commandLine 'gpg', '--batch', '--import', keyTempFile.absolutePath
-                        standardOutput = new ByteArrayOutputStream()
-                        errorOutput = new ByteArrayOutputStream()
-                    }
-                    
-                    keyTempFile.delete()
-                    
-                    // Create passphrase file
-                    def passphraseTempFile = File.createTempFile("gpg-pass", ".txt")
-                    passphraseTempFile.text = signingPassword
-                    
-                    // Sign the file
-                    exec {
-                        commandLine 'gpg', '--batch', '--yes', '--pinentry-mode', 'loopback',
-                            '--passphrase-file', passphraseTempFile.absolutePath,
-                            '--armor', '--detach-sign', fileToSign.absolutePath
-                    }
-                    
-                    passphraseTempFile.delete()
-                    
-                    if (!signatureFile.exists()) {
-                        throw new GradleException("Failed to create signature: ${signatureFile}")
-                    }
+            // Copy signature file if it exists
+            def signatureFile = "${artifactPath}/${filename}.asc"
+            if (file(signatureFile).exists()) {
+                copy {
+                    from signatureFile
+                    into mavenDir
                 }
             }
             
-            println "✅ All artifacts signed"
-        } else {
-            println "⚠️  Skipping signing (GPG_PRIVATE_KEY or GPG_PASSPHRASE not set)"
-        }
-        
-        // Generate checksums for all files (including signatures)
-        println "📝 Generating checksums..."
-        fileTree(mavenDir).each { currentFile ->
-            if (!currentFile.name.endsWith('.md5') && !currentFile.name.endsWith('.sha1')) {
-                // MD5
-                def md5Hash = ant.checksum(file: currentFile, algorithm: "md5", property: "${currentFile.name}.md5")
-                def md5Value = ant.antProject.properties["${currentFile.name}.md5"]
-                file("${currentFile.absolutePath}.md5").text = md5Value
+            // Generate proper checksums
+            def sourceFile = file("${artifactPath}/${filename}")
+            if (sourceFile.exists()) {
+                // Generate MD5 (just the hash value)
+                def md5Hash = ant.checksum(file: sourceFile, algorithm: "md5", property: "${filename}.md5")
+                def md5Value = ant.antProject.properties["${filename}.md5"]
+                file("${mavenDir}/${filename}.md5").text = md5Value
                 
-                // SHA1
-                def sha1Hash = ant.checksum(file: currentFile, algorithm: "sha1", property: "${currentFile.name}.sha1")
-                def sha1Value = ant.antProject.properties["${currentFile.name}.sha1"]
-                file("${currentFile.absolutePath}.sha1").text = sha1Value
+                // Generate SHA1 (just the hash value)
+                def sha1Hash = ant.checksum(file: sourceFile, algorithm: "sha1", property: "${filename}.sha1")
+                def sha1Value = ant.antProject.properties["${filename}.sha1"]
+                file("${mavenDir}/${filename}.sha1").text = sha1Value
             }
         }
         
@@ -265,9 +213,20 @@ task createCentralPortalBundle {
         println "✅ Bundle created successfully: ${bundleZip}"
         println ""
         println "Bundle contents:"
-        fileTree(bundleDir).each { bundleFile ->
-            println "  ${bundleFile.path.substring(bundleDir.length() + 1)}"
+        fileTree(bundleDir).each { file ->
+            println "  ${file.path.substring(bundleDir.length() + 1)}"
         }
+        
+        println ""
+        println "To upload to Central Portal, run this command:"
+        println ""
+        println "curl -X POST \\"
+        println "  https://central.sonatype.com/api/v1/publisher/upload \\"
+        println "  -u '${username}:${password}' \\"
+        println "  -F 'bundle=@${bundleZip}' \\"
+        println "  -F 'publishingType=USER_MANAGED'"
+        println ""
+        println "Or run: gradlew :core:uploadToCentralPortal"
     }
 }
 
