@@ -59,7 +59,7 @@ publishing {
             pom {
                 name = 'Optivem Test Library [DEPRECATED]'
                 description = '⚠️ DEPRECATED: This artifact has been renamed to com.optivem:optivem-testing. Please migrate to the new artifact. This is the final release under the old name.'
-                url = 'https://github.com/optivem/optivem-test-java'
+                url = 'https://github.com/optivem/optivem-testing-java'
                 
                 licenses {
                     license {
@@ -77,9 +77,9 @@ publishing {
                 }
                 
                 scm {
-                    connection = 'scm:git:git://github.com/optivem/optivem-test-java.git'
-                    developerConnection = 'scm:git:ssh://github.com:optivem/optivem-test-java.git'
-                    url = 'https://github.com/optivem/optivem-test-java'
+                    connection = 'scm:git:git://github.com/optivem/optivem-testing-java.git'
+                    developerConnection = 'scm:git:ssh://github.com:optivem/optivem-testing-java.git'
+                    url = 'https://github.com/optivem/optivem-testing-java'
                 }
             }
         }
@@ -88,7 +88,7 @@ publishing {
     repositories {
         maven {
             name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/optivem/optivem-test-java")
+            url = uri("https://maven.pkg.github.com/optivem/optivem-testing-java")
             credentials {
                 username = System.getenv("GITHUB_USERNAME")
                 password = System.getenv("GITHUB_WRITE_PACKAGES_TOKEN")

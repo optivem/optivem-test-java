@@ -17,8 +17,8 @@
     Package name in GitHub Packages
 
 .EXAMPLE
-    .\find-latest-rc-version.ps1 -GitHubToken $token -Repository "optivem/optivem-test-java"
-    .\find-latest-rc-version.ps1 -RcVersion "1.0.5-rc.47" -GitHubToken $token -Repository "optivem/optivem-test-java"
+    .\find-latest-rc-version.ps1 -GitHubToken $token -Repository "optivem/optivem-testing-java"
+    .\find-latest-rc-version.ps1 -RcVersion "1.0.5-rc.47" -GitHubToken $token -Repository "optivem/optivem-testing-java"
 #>
 
 param(

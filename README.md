@@ -10,9 +10,9 @@
 This repository will continue to exist for the new artifact. Version `1.1.0-DEPRECATED` is the final release under the old name.
 
 ---
-[![Commit Stage](https://github.com/optivem/optivem-test-java/actions/workflows/commit-stage.yml/badge.svg)](https://github.com/optivem/optivem-test-java/actions/workflows/commit-stage.yml)
-[![Acceptance Stage](https://github.com/optivem/optivem-test-java/actions/workflows/acceptance-stage.yml/badge.svg)](https://github.com/optivem/optivem-test-java/actions/workflows/acceptance-stage.yml)
-[![Release Stage](https://github.com/optivem/optivem-test-java/actions/workflows/release-stage.yml/badge.svg)](https://github.com/optivem/optivem-test-java/actions/workflows/release-stage.yml)
+[![Commit Stage](https://github.com/optivem/optivem-testing-java/actions/workflows/commit-stage.yml/badge.svg)](https://github.com/optivem/optivem-testing-java/actions/workflows/commit-stage.yml)
+[![Acceptance Stage](https://github.com/optivem/optivem-testing-java/actions/workflows/acceptance-stage.yml/badge.svg)](https://github.com/optivem/optivem-testing-java/actions/workflows/acceptance-stage.yml)
+[![Release Stage](https://github.com/optivem/optivem-testing-java/actions/workflows/release-stage.yml/badge.svg)](https://github.com/optivem/optivem-testing-java/actions/workflows/release-stage.yml)
 
 A simple test library built with Java 21 and Gradle for testing and demonstration purposes.
 
@@ -31,7 +31,7 @@ A simple test library built with Java 21 and Gradle for testing and demonstratio
 ```gradle
 repositories {
     maven {
-        url = uri("https://maven.pkg.github.com/optivem/optivem-test-java")
+        url = uri("https://maven.pkg.github.com/optivem/optivem-testing-java")
         credentials {
             username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
             password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")

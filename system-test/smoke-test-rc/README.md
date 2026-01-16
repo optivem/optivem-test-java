@@ -35,7 +35,7 @@ repositories {
     mavenCentral()
     
     maven {
-        url = uri("https://maven.pkg.github.com/optivem/optivem-test-java")
+        url = uri("https://maven.pkg.github.com/optivem/optivem-testing-java")
         credentials {
             username = System.getenv("GITHUB_USERNAME")
             password = System.getenv("GITHUB_READ_PACKAGES_TOKEN")

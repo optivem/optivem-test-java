@@ -17,7 +17,7 @@
     GitHub repository (owner/repo)
 
 .EXAMPLE
-    .\download-rc-artifacts.ps1 -RcVersion "1.0.5-rc.47" -GitHubUsername "user" -GitHubToken $token -Repository "optivem/optivem-test-java"
+    .\download-rc-artifacts.ps1 -RcVersion "1.0.5-rc.47" -GitHubUsername "user" -GitHubToken $token -Repository "optivem/optivem-testing-java"
 #>
 
 param(
