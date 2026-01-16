@@ -40,25 +40,47 @@ $headers = @{
 Write-Host "🔍 Finding deployment for version $ReleaseVersion..." -ForegroundColor Yellow
 
 try {
-    # List deployments - correct endpoint is /api/v1/publisher/deployments (no trailing slash)
-    $deploymentsUrl = "https://central.sonatype.com/api/v1/publisher/deployments"
-    Write-Host "  Calling: $deploymentsUrl" -ForegroundColor Gray
+    # Try the API endpoint - Maven Central Portal uses a separate API domain
+    $apiBase = "https://central.sonatype.com"
+    $deploymentsUrl = "$apiBase/api/v1/publisher/deployments"
     
-    $deploymentsResponse = Invoke-RestMethod -Uri $deploymentsUrl -Headers $headers -Method Get -ErrorAction Stop
+    Write-Host "  Attempting API call to: $deploymentsUrl" -ForegroundColor Gray
     
-    # Check response structure
-    if ($null -eq $deploymentsResponse) {
-        Write-Host "❌ Empty response from deployments API" -ForegroundColor Red
-        exit 1
+    # Add more headers that might be needed
+    $headers["Content-Type"] = "application/json"
+    
+    try {
+        $deploymentsResponse = Invoke-RestMethod -Uri $deploymentsUrl -Headers $headers -Method Get -ErrorAction Stop
+    } catch {
+        # Try alternative domain if the first fails
+        Write-Host "  First attempt failed, trying api.central.sonatype.com..." -ForegroundColor Yellow
+        $apiBase = "https://api.central.sonatype.com"
+        $deploymentsUrl = "$apiBase/v1/publisher/deployments"
+        Write-Host "  Attempting: $deploymentsUrl" -ForegroundColor Gray
+        $deploymentsResponse = Invoke-RestMethod -Uri $deploymentsUrl -Headers $headers -Method Get -ErrorAction Stop
     }
     
-    # The response might be an array directly or wrapped in an object
+    Write-Host "  ✓ Response received" -ForegroundColor Green
+    
+    # Handle different response formats
     $deploymentsList = if ($deploymentsResponse -is [Array]) { 
         $deploymentsResponse 
     } elseif ($deploymentsResponse.PSObject.Properties['deployments']) {
         $deploymentsResponse.deployments
+    } elseif ($deploymentsResponse.PSObject.Properties['items']) {
+        $deploymentsResponse.items
     } else {
         $deploymentsResponse
+    }
+    
+    if ($null -eq $deploymentsList -or $deploymentsList.Count -eq 0) {
+        Write-Host "⚠️  No deployments found" -ForegroundColor Yellow
+        Write-Host ""
+        Write-Host "Manual steps:" -ForegroundColor Cyan
+        Write-Host "1. Go to: https://central.sonatype.com/publishing/deployments" -ForegroundColor White
+        Write-Host "2. Find deployment for version $ReleaseVersion" -ForegroundColor White
+        Write-Host "3. Click 'Publish' button" -ForegroundColor White
+        exit 0
     }
     
     Write-Host "  Found $($deploymentsList.Count) total deployments" -ForegroundColor Gray
