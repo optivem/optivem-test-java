@@ -102,18 +102,11 @@ jobs:
         GITHUB_USERNAME: ${{ github.actor }}
         GITHUB_READ_PACKAGES_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
-    - name: Create Git tag and release
-      shell: pwsh
-      run: |
-        $releaseVersion = "${{ steps.validate.outputs.release-version }}"
-        $rcVersion = "${{ steps.validate.outputs.rc-version }}"
-        
-        Write-Host "🏷️ Creating Git tag v${releaseVersion}..." -ForegroundColor Blue
-        git config user.name "github-actions[bot]"
-        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-        
-        git tag -a "v${releaseVersion}" -m "Release ${releaseVersion} (promoted from ${rcVersion})"
-        git push origin "v${releaseVersion}"
+    - name: Create Git tag
+      uses: ./.github/actions/create-git-tag
+      with:
+        release-version: ${{ steps.validate.outputs.release-version }}
+        rc-version: ${{ steps.validate.outputs.rc-version }}
         
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v2
