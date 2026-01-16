@@ -14,7 +14,7 @@
     GitHub repository (owner/repo)
 
 .EXAMPLE
-    .\check-version-exists.ps1 -ReleaseVersion "1.0.5" -GitHubToken $token -Repository "optivem/optivem-test-java"
+    .\check-version-exists.ps1 -ReleaseVersion "1.0.5" -GitHubToken $token -Repository "optivem/optivem-testing-java"
 #>
 
 param(
