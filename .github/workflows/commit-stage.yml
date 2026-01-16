@@ -38,6 +38,12 @@ jobs:
       id: extract_version
       uses: ./.github/actions/extract-base-version
     
+    - name: Check if base version already released
+      uses: ./.github/actions/check-release-exists
+      with:
+        release-version: ${{ steps.extract_version.outputs.base_version }}
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+    
     - name: Determine RC version
       id: version
       run: echo "version=${{ steps.extract_version.outputs.base_version }}-rc.${{ github.run_number }}" >> $GITHUB_OUTPUT
