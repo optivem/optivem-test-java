@@ -1,6 +1,6 @@
 // Root project configuration for multi-module setup
 
-def baseVersion = '1.0.8'
+def baseVersion = '1.0.9'
 
 // Make baseVersion available to subprojects
 ext.baseVersion = baseVersion
