@@ -20,9 +20,9 @@ runs:
     - name: Check if version exists in GitHub Packages
       shell: pwsh
       run: |
-        ./.github/scripts/check-version-exists.ps1 -ReleaseVersion "${{ inputs.release-version }}" -GitHubToken "${{ inputs.github-token }}" -Repository "${{ inputs.repository }}"
+        ${{ github.action_path }}/check-version-exists.ps1 -ReleaseVersion "${{ inputs.release-version }}" -GitHubToken "${{ inputs.github-token }}" -Repository "${{ inputs.repository }}"
     
     - name: Check if Git tag exists
       shell: pwsh
       run: |
-        ./.github/scripts/check-tag-exists.ps1 -ReleaseVersion "${{ inputs.release-version }}"
+        ${{ github.action_path }}/check-tag-exists.ps1 -ReleaseVersion "${{ inputs.release-version }}"
