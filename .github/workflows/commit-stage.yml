@@ -51,21 +51,6 @@ jobs:
         GITHUB_USERNAME: ${{ github.actor }}
         GITHUB_WRITE_PACKAGES_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Upload to Maven Central
-      run: ./gradlew core:uploadToCentralPortal --no-daemon --no-configuration-cache -Pversion="${{ steps.version.outputs.version }}"
-      env:
-        SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
-        SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-        GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
-        GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-        
-    - name: Maven Central Next Steps
-      run: |
-        echo "📦 Bundle uploaded to Central Portal successfully!"
-        echo "🔗 Go to: https://central.sonatype.com/publishing/deployments"
-        echo "📋 Manually publish version: ${{ steps.version.outputs.version }}"
-        echo "⏱️  After publishing, run: .\trigger-verification.ps1 -Version '${{ steps.version.outputs.version }}'"
-
 
   dependency-submission:
     runs-on: ubuntu-latest
