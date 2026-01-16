@@ -69,8 +69,6 @@ jobs:
       with:
         deployment-id: ${{ steps.upload.outputs.deployment-id }}
         expected-state: 'VALIDATED'
-        max-attempts: '30'
-        poll-interval: '10'
     
     - name: Publish deployment on Maven Central
       uses: ./.github/actions/publish-central-deployment

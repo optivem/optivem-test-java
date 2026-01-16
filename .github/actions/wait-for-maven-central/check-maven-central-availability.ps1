@@ -16,11 +16,11 @@ param(
     [Parameter(Mandatory=$true)]
     [string]$Version,
     
-    [Parameter(Mandatory=$false)]
-    [string]$GroupId = "com.optivem",
+    [Parameter(Mandatory=$true)]
+    [string]$GroupId,
     
-    [Parameter(Mandatory=$false)]
-    [string]$ArtifactId = "optivem-test"
+    [Parameter(Mandatory=$true)]
+    [string]$ArtifactId
 )
 
 $groupPath = $GroupId.Replace('.', '/')

@@ -12,11 +12,11 @@ inputs:
   max-attempts:
     description: 'Maximum number of polling attempts'
     required: false
-    default: '30'
+    default: '60'
   poll-interval:
     description: 'Seconds between polling attempts'
     required: false
-    default: '10'
+    default: '60'
   condition-name:
     description: 'Human-readable name of the condition being waited for'
     required: false
