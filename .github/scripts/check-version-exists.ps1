@@ -46,6 +46,8 @@ if ($GitHubToken -and $Repository) {
             if ($exists) {
                 Write-Host "❌ Version $ReleaseVersion already exists in GitHub Packages!" -ForegroundColor Red
                 Write-Host "Cannot promote RC to an existing release version." -ForegroundColor Red
+                Write-Host "To reuse this version, delete the package first via GitHub web interface:" -ForegroundColor Cyan
+                Write-Host "  https://github.com/$Repository/packages" -ForegroundColor White
                 exit 1
             } else {
                 Write-Host "✅ Version $ReleaseVersion not found in GitHub Packages" -ForegroundColor Green
