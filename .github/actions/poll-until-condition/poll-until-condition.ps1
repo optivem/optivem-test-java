@@ -47,13 +47,21 @@ while ($attempt -lt $MaxAttempts) {
             & $scriptPath
         }
         
-        # Check exit code - 0 means condition met
+        # Check exit code:
+        # 0 = condition met (success)
+        # 1 = permanent failure (stop polling)
+        # 2 = still waiting (continue polling)
         if ($LASTEXITCODE -eq 0) {
             Write-Host ""
             Write-Host "✅ Condition met: $ConditionName" -ForegroundColor Green
             $conditionMet = $true
             break
+        } elseif ($LASTEXITCODE -eq 1) {
+            Write-Host ""
+            Write-Host "❌ Permanent failure detected, stopping polling" -ForegroundColor Red
+            exit 1
         }
+        # Exit code 2 means keep polling
         
     } catch {
         Write-Host "   ⚠️  Error running check script: $($_.Exception.Message)" -ForegroundColor Yellow

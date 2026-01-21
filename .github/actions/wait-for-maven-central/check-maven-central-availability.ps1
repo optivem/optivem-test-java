@@ -23,6 +23,12 @@ param(
     [string]$ArtifactId
 )
 
+# Validate inputs
+if ([string]::IsNullOrWhiteSpace($Version) -or [string]::IsNullOrWhiteSpace($GroupId) -or [string]::IsNullOrWhiteSpace($ArtifactId)) {
+    Write-Host "   ❌ Invalid parameters: Version, GroupId, and ArtifactId are required" -ForegroundColor Red
+    exit 1  # Permanent failure - invalid input
+}
+
 $groupPath = $GroupId.Replace('.', '/')
 $pomUrl = "https://repo1.maven.org/maven2/$groupPath/$ArtifactId/$Version/$ArtifactId-$Version.pom"
 

@@ -42,7 +42,7 @@ try {
     
     Write-Host "   Current state: $state" -ForegroundColor Cyan
     
-    # Check for failure
+    # Check for failure - exit 1 to stop polling immediately
     if ($state -eq "FAILED") {
         Write-Host "   ❌ Deployment failed" -ForegroundColor Red
         if ($response.PSObject.Properties['errors'] -and $response.errors) {
@@ -50,18 +50,18 @@ try {
                 Write-Host "      • $_" -ForegroundColor Red 
             }
         }
-        exit 1
+        exit 1  # Permanent failure - stop polling
     }
     
     # Check if expected state reached
     if ($state -eq $ExpectedState) {
-        exit 0  # Success
+        exit 0  # Success - condition met
     }
     
-    # Still waiting
+    # Still waiting - continue polling
     exit 2
     
 } catch {
     Write-Host "   ⚠️  API Error: $($_.Exception.Message)" -ForegroundColor Yellow
-    exit 1
+    exit 2  # Transient error - continue polling
 }
