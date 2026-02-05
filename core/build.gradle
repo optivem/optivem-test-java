@@ -58,7 +58,7 @@ publishing {
             
             pom {
                 name = 'Optivem Testing Library'
-                description = 'Utilities for Acceptance Testing'
+                description = 'JUnit Jupiter extension for running tests across multiple channels with parameterized testing support'
                 url = 'https://github.com/optivem/optivem-testing-java'
                 
                 licenses {

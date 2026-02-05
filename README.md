@@ -15,7 +15,7 @@ The library is available on Maven Central https://mvnrepository.com/artifact/com
 #### Gradle
 ```gradle
 dependencies {
-    implementation 'com.optivem:optivem-testing:1.0.2'
+    implementation 'com.optivem:optivem-testing:1.0.3'
 }
 ```
 
@@ -24,7 +24,7 @@ dependencies {
 <dependency>
     <groupId>com.optivem</groupId>
     <artifactId>optivem-testing</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
 </dependency>
 ```
 
