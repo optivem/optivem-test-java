@@ -10,12 +10,12 @@ A testing library to support Acceptance Testing in Java.
 
 ### Add as Dependency
 
-The library is available on Maven Central.
+The library is available on Maven Central https://mvnrepository.com/artifact/com.optivem/optivem-testing
 
 #### Gradle
 ```gradle
 dependencies {
-    implementation 'com.optivem:optivem-testing:1.0.0'
+    implementation 'com.optivem:optivem-testing:1.0.2'
 }
 ```
 
@@ -24,7 +24,7 @@ dependencies {
 <dependency>
     <groupId>com.optivem</groupId>
     <artifactId>optivem-testing</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.2</version>
 </dependency>
 ```
 
